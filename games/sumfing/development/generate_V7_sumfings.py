@@ -19,7 +19,7 @@ times_tables_numbers = set([i*j for i in range (1,13) for j in range(1,13)])
 def generate_sumfings():
 
     start_date = datetime.today()
-    number_of_puzzles = 100
+    number_of_puzzles = 364
     puzzles = generate_puzzles(start_date, number_of_puzzles)
 
     # Convert the dictionary to JSON-compatible format

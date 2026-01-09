@@ -1,0 +1,14 @@
+---
+layout: layout.html
+---
+
+<meta http-equiv="refresh" content="0; url={{ redirect_to }}">
+<link rel="canonical" href="{{ redirect_to }}">
+
+<p>
+  Redirecting to <a href="{{ redirect_to }}">{{ redirect_to }}</a>…
+</p>
+
+<script>
+  window.location.replace("{{ redirect_to }}");
+</script>

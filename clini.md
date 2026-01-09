@@ -1,7 +1,7 @@
 ---
 layout: layout.html
 title: Clini
-description: A tool for extracting structured data from clinical documents and generating personalised medical reports using AI. (Beta, May 2025)
+description: A tool for extracting structured data from clinical documents and generating personalised medical reports.
 image: /assets/images/phonedemo.png
 order: 99
 ---

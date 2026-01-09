@@ -6,14 +6,15 @@ module.exports = function(eleventyConfig) {
   
   // Collection: pages
   eleventyConfig.addCollection("pages", function(collectionApi) {
-    return collectionApi.getAll().filter(item =>
-      "title" in item.data &&
-      "description" in item.data &&
-      "image" in item.data &&
-      !item.data.excludeFromIndex
-    )
-    .sort((a, b) => (a.data.order || 0) - (b.data.order || 0));
-  });
+  return collectionApi.getAll().filter(item =>
+    "title" in item.data &&
+    "description" in item.data &&
+    "image" in item.data &&
+    !item.data.excludeFromIndex
+  )
+  .sort((a, b) => b.date - a.date);   // 👈 newest first
+});
+
 
   return {
     dir: {

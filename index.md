@@ -7,9 +7,7 @@ title: nyberry
 
 ### Hi, I'm Nick.
 
-Welcome to my site - a grab-bag of medical calculators, quick-reference tools, and the occasional musing.
-<br><br>
-Whether you’re here to run some numbers, check a clinical concept, or just browse, I hope you find something useful and thought-provoking.
+Welcome to my site. Here you'll find a selection of medical calculators, some quick-reference tools, projects I am working on, and the occasional musing. I hope you find something useful or thought-provoking.
 <br><br>
 
 <div id="contents" class="grid">
@@ -43,5 +41,5 @@ Whether you’re here to run some numbers, check a clinical concept, or just bro
   <p>
     This site is intended as a fun, quick reference tool and should not be relied upon as a sole source of information for clinical decision-making. While every effort is made to ensure accuracy, errors or omissions may occur. Users must verify all information against authoritative sources such as national guidelines or clinical protocols. The responsibility for safe clinical use remains entirely with the clinician.
   </p>
-  <p style="margin-top: 1rem;">&copy; 2025 NYB Medical Limited</p>
+  <p style="margin-top: 1rem;">&copy; 2026 NYB Medical Limited</p>
 </div>

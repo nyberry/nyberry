@@ -12,7 +12,7 @@ I'm a doctor in Dorset, UK.
 
 I specialise in Family Medicine and have Postgraduate qualifications in Sports and Exercise Medicine and in Medical Education, and work as a GP Trainer, mentoring Resident Doctors as they specialise in Family Medicine.
 
-Outside of the National Health Service, I am interested in the application of AI technologies in primary care, and am studying for a masters degree in Data Science for Healthcare at Exeter University. I also work as a medical examiner for the US Department for Veterans Affairs.
+I am interested in the application of AI technologies in primary care, and am studying for a masters degree in Data Science for Healthcare at Exeter University. I also work as a medical examiner for the US Department for Veterans Affairs.
 
 General Medical Council Registration Number: 4428280
 

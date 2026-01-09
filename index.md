@@ -7,7 +7,9 @@ title: nyberry
 
 ### Hi, I'm Nick.
 
-Welcome to my site. Here you'll find a selection of medical calculators, some quick-reference tools, projects I am working on, and the occasional musing. I hope you find something useful or thought-provoking.
+Welcome to my site. Here you'll find an eclectic mix of medical calculators, quick-reference tools, games, projects I am working on, and the occasional musing.
+
+I hope you find something useful, thought-provoking, or entertaining.
 <br><br>
 
 <div id="contents" class="grid">

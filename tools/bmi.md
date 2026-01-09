@@ -15,6 +15,7 @@ image: /assets/images/scales.png
   <label for="weight">Weight (kg):</label>
   <input type="number" id="weight" min="5" max="250" required step="0.1" oninput="checkFormCompletion();  updateImperial();">
   <div id="weight-imperial" class="footnote"></div>
+  <div id="weight-stone" class="footnote"></div>
   <br>
   <button type="submit" disabled="true">Calculate BMI</button>
 </form>
@@ -93,14 +94,21 @@ function updateImperial() {
     document.getElementById('height-imperial').textContent = '';
   }
 
-  // Convert kg to lb
+  // Convert kg to lb and stones
   if (!isNaN(weightKg)) {
-    const pounds = (weightKg * 2.20462).toFixed(0);
+    const poundsTotal = weightKg * 2.20462;
+    const pounds = poundsTotal.toFixed(0);
+    const stones = Math.floor(poundsTotal / 14);
+    const poundsRemainder = Math.round(poundsTotal % 14);
+
     document.getElementById('weight-imperial').textContent = `${pounds} lbs`;
+    document.getElementById('weight-stone').textContent = `${stones} st ${poundsRemainder} lbs`;
   } else {
     document.getElementById('weight-imperial').textContent = '';
+    document.getElementById('weight-stone').textContent = '';
   }
 }
+
 
 function checkFormCompletion() {
   const height = parseFloat(document.getElementById('height').value);

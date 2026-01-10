@@ -8647,7 +8647,7 @@ the most cost-effective staffing levels for given service targets.</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="Generative-AI-usage">Generative AI usage<a class="anchor-link" href="#Generative-AI-usage">¶</a></h2><p>I made use of generative AI in developing this project, in line with the assignment brief. ChatGPT 5 was used:</p>
+<h2 id="Generative-AI-usage">Generative AI usage<a class="anchor-link" href="#Generative-AI-usage">¶</a></h2><p>Generative AI was used in developing this project, in line with the assignment brief and university guidance:</p>
 <ul>
 <li>to develop ideas</li>
 <li>to assist with research and gathering information about mathematical formulas</li>
@@ -8656,7 +8656,6 @@ the most cost-effective staffing levels for given service targets.</p>
 <li>to provide feedback on drafts</li>
 <li>to provide feeback on formatting and layout of my python code</li>
 </ul>
-<p>The prompts used are listed in the cell below:</p>
 </div>
 </div>
 </div>
@@ -8666,102 +8665,6 @@ the most cost-effective staffing levels for given service targets.</p>
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="List-of-Gen-AI-Prompts">List of Gen AI Prompts<a class="anchor-link" href="#List-of-Gen-AI-Prompts">¶</a></h3><ol>
-<li><p>The course is data science for health care. The Module is coding skills for data science. My background is as a primary care doctor. I want to bring examples from my healthcare work to my academic work. May I paste the assignment brief? [Pasted full assignment brief for Coding Skills for Data Science]</p>
-</li>
-<li><p>This is a good outline. Instead of C, can we have a flu vaccination clinic with 6 vaccinators?</p>
-</li>
-<li><p>I am a beginner with Jupyter notebooks. How should I start approaching this?</p>
-</li>
-<li><p>In bash, how to exit Jupyter Lab?</p>
-</li>
-<li><p>How to make a markdown cell?</p>
-</li>
-<li><p>Would you like me to make you a “starter notebook template” with the Markdown sections already laid out, plus placeholder code cells (with # TODO: implement here)? That way, you just open it in Jupyter and fill it in step by step. YES</p>
-</li>
-<li><p>Why does queueing matter in health care and what are the M/M/s, M/M/1, and M/G/1 models?</p>
-</li>
-<li><p>Is this a good plain English introduction? [You pasted your introductory section on queueing in healthcare.]</p>
-</li>
-<li><p>Planned experiments (up to six total). I want to do these experiments. Can you help me set them up? Are they good?
-A. GP Same-day Triage (M/M/1) — two experiments
-B. Minor Op clinic (M/G/1) — two experiments
-C. Flu Vaccination Clinic (M/M/s, s=6) — two experiments</p>
-</li>
-<li><p>Can you help me with a new starter Jupyter notebook with these refinements?</p>
-</li>
-<li><p>in jupyter labs, how do I make a.gif image smaller? Currently it expands to fill the page and I dont want this</p>
-</li>
-<li><p>My python code is no more than 80 chars wide. Can I adjust the MD cells to have a similar width?</p>
-</li>
-<li><p>can you give me the Lambert W function in MD</p>
-</li>
-<li><p>I mean, the exact equation described above μ=t1W(0.1λteλt). but in Latex</p>
-</li>
-<li><p>what does W represent in this equation?</p>
-</li>
-<li><p>Does my python function solve that equation? “def mm1_metrics(mu: float, lambdas: np.ndarray) -&gt; tuple[np.ndarray, np.ndarray]: ... return rho, wq_minutes.""</p>
-</li>
-<li><p>In experiments A1 and A2 I have calculated the service rate required for 90% of triages to start within 20 minutes. For experiment A3, I want to explore the GP's choice to COMPLETE the triage himself (takes 10 minutes) or signpost to another provoider (takes 3) minutes. What calculations and experiment can help inform this choice, based on A1 and A2?”</p>
-</li>
-<li><p>i want to limit max Wq on that chart to 180</p>
-</li>
-<li><p>what is the difference between gaussian and exponential distribution”</p>
-</li>
-<li><p>return np.clip((60/mu_req - 3)/7, 0, 1). what formula am I using here?”</p>
-</li>
-<li><p>How to show inline math?</p>
-</li>
-<li><p>give me the formula for variance in latex</p>
-</li>
-<li><p>give me this formula in latex: pmax=min(1,max(0,760/μreq−3))</p>
-</li>
-<li><p>here is my code; give me a MD explantion including the key formula</p>
-</li>
-<li><p>Wq=2(1−ρ)λE[S2]h2(hours). give me this ln latex</p>
-</li>
-<li><p>Pollaczek–Khinchine formula: what is this?</p>
-</li>
-<li><p>I have completed 4 out of 6 experiments. The remaining 2 should be M/M/S. I am wondering about extending the GP Triage scenario but addind a second triager? Can you think of 2 easy experiments like that?</p>
-</li>
-<li><p>Wq=sμ−λPW. give me in latex</p>
-</li>
-<li><p>how can I use mathplotlib to plot Wq with 1,2,3 and 4 triagers?</p>
-</li>
-<li><p>I'd like to try a variation on this. For lambdas from 4 through 40, determine the minimum number of GP triagers to meet the service specification of 90% of triage calls started within 20 minutes”</p>
-</li>
-<li><p>plot two lines: 90% within 20 minutes and 90% within 30 minutes</p>
-</li>
-<li><p>PW=n=0∑s−1n!(λ/μ)n+s!(1−ρ)(λ/μ)ss!(1−ρ)(λ/μ)s,ρ=sμλ. give the the latex for this please</p>
-</li>
-<li><p>P(Wq&gt;t∣must wait)=e−(sμ−λ)t. in latex</p>
-</li>
-<li><p>Can you critique my work so far?</p>
-</li>
-<li><p>Why is f(t) = λe−λt exponential, and how can the service rate be constant?</p>
-</li>
-<li><p>What is fig.tight_layout?</p>
-</li>
-<li><p>In my Jupyter notebook, should I include this as one cell or multiple cells? [You pasted Experiment 1 code.]</p>
-</li>
-<li><p>I want the first bit to be a docstring not Markdown. Does this affect your answer?</p>
-</li>
-<li><p>Please add a Markdown interpretation paragraph for Experiment 1.</p>
-</li>
-<li><p>“Experiment 2 — Meeting service target (M/M/1)” [You pasted your Lambert W function experiment and asked for formatting.]</p>
-</li>
-<li><p>How can I format Experiment 3 — Complete or Signpost? (M/G/1) in the same way that I have formatted experiments 1 and 2?</p>
-</li>
-<li><p>If I have already made the imports earlier in the notebook for a different experiment, do I need to import again?</p>
-</li>
-<li><p>mus_required = np.array([calculate_mu_required(lam, t target) for lam in lambdas]) what is wrong?</p>
-</li>
-<li><p>help me format experiments 4, 5 and 6 in the same way.</p>
-</li>
-<li><p>Export all the prompts in this project to a list.</p>
-</li>
-</ol>
 </div>
 </div>
 </div>

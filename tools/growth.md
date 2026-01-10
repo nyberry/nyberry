@@ -3,6 +3,7 @@ layout: layout.html
 title: Growth Charts
 description: Plot weight and height on paediatric growth charts using age, sex, and date of measurement. Useful for visualising growth trends and identifying problems.
 image: /assets/images/nurseandgirl.png
+date: 2025-04-10
 ---
 
 <h2>Plot Growth on Chart</h2>

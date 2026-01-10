@@ -3,6 +3,7 @@ title: ICD-10 Lookup Tool
 layout: layout.html
 description: Look up ICD-10 codes for common symptoms and diagnoses.
 image: /assets/images/icd10.png
+date: 2025-04-08
 ---
 
 <h2>ICD-10 Code Lookup</h2>

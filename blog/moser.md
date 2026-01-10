@@ -3,7 +3,7 @@ title: "Moser’s Circle Problem - and why we still need GPs"
 layout: layout.html
 description: Recently I was thinking about why GP training needs to take so long. Why can't we just replace GPs with reasonably smart people and computers?
 image: /blog/images/moser2.png
-date: 2025-05-20
+date: 2023-12-20
 tags: [blog, comments]
 order: 200
 ---

@@ -3,6 +3,7 @@ layout: layout.html
 title: Kidney Calculator
 description: A clinical calculator for estimating kidney function using both eGFR and Creatinine Clearance. Useful for staging CKD and guiding drug dosing.
 image: /assets/images/kidney.png
+date: 2025-04-09
 ---
 
 <h2>Kidney Function Calculator</h2>

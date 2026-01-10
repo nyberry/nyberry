@@ -3,6 +3,7 @@ layout: layout.html
 title: Lab Unit Converter
 description: Convert common lab values between US and European units. A quick-reference tool for interpreting international lab results.
 image: /assets/images/USUKbridge.png
+date: 2025-04-08
 ---
 
 <h2>Lab Unit Converter</h2>

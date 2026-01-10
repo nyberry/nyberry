@@ -3,6 +3,7 @@ layout: layout.html
 title: BMI Calculator
 description: Enter height and weight to calculate and explain body mass index. With a summary of the limitations of BMI.
 image: /assets/images/scales.png
+date: 2025-04-10
 ---
 
 <h2>BMI Calculator</h2>

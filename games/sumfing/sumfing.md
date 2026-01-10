@@ -2,6 +2,7 @@
 title: Sumfing
 description: A simple yet challenging number game. Can you arrange the tiles to solve the sum? Nothing to do with medicine.
 image: /games/sumfing/assets/images/demoImage.png
+date: 2024-06-01
 order: 400
 ---
 

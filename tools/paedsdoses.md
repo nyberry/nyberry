@@ -3,6 +3,7 @@ layout: layout.html
 title: Kids' Doses
 description: A quick-reference tool for calculating common paediatric drug doses based on weight. Always cross-check with the BNFc or local guidelines.
 image: /assets/images/medicine.png
+date: 2025-04-08
 ---
 
 <!-- Disclaimer Modal -->

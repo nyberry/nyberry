@@ -3,6 +3,7 @@ layout: layout.html
 title: Visual Acuity Test
 description: Snellen and Logmar charts plates for screening visual acuity. Suitable for use on a phone or computer.
 image: /assets/images/snellen1.png
+date: 2025-04-09
 ---
 
 <img id="snellen-img" src="/assets/images/snellen1.png" alt="Snellen Chart" style=" max-width: 100%; height: auto; display: block; margin: 0 auto;">

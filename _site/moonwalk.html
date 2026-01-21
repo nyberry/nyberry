@@ -7517,13 +7517,14 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="Tacticus's-Moon-Hopper-Mystery">Tacticus's Moon Hopper Mystery<a class="anchor-link" href="#Tacticus's-Moon-Hopper-Mystery">¶</a></h2><p>A moon-hopper’s navigation boots are malfunctioning. Each thruster firing causes a fixed drift along a straight line:</p>
+<h2 id="Tacticus's-Moon-Hopper-Mystery">Tacticus's Moon Hopper Mystery<a class="anchor-link" href="#Tacticus's-Moon-Hopper-Mystery">¶</a></h2><p>"A moon-hopper’s navigation boots are malfunctioning. Each thruster firing causes a fixed drift along a straight line:</p>
 <p>Left thruster: 403 mm forward</p>
 <p>Right thruster: 351 mm backward</p>
 <p>The thrusters are perfectly accurate but cannot be adjusted. Each firing counts as one move, and you may fire either thruster any number of times, in any order.</p>
 <p>You begin hovering exactly over a painted landing mark.</p>
 <p>How close can you ever hover to the landing mark without being exactly on it?</p>
-<p>What is the fewest number of thruster firings needed to achieve that closest approach?</p>
+<p>What is the fewest number of thruster firings needed to achieve that closest approach?"</p>
+<hr/>
 </div>
 </div>
 </div>
@@ -7534,14 +7535,15 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>My first thought is that both 403 and 351 are multiples of 13.</p>
+<p>Well, both 403 and 351 are multiples of 13:</p>
 <ul>
 <li>31 x 13 = 403</li>
 <li>27 x 13 = 351</li>
 </ul>
-<p>This means I can only ever move forward or backward by some multiple of 13 mm.</p>
-<p>I could return to hover directly over the landing spot by taking 351 steps forward and 403 steps backward (Michael Jackson would have done this).</p>
+<p>This means we can only ever move forward or backward by some multiple of 13 mm.</p>
+<p>If we wanted, we could return to hover directly over the landing spot by taking 351 steps forward and 403 steps backward (Michael Jackson would have done this).</p>
 <p>But the next closest hovering stations would be at some multiple of 13mm.</p>
+<hr/>
 </div>
 </div>
 </div>
@@ -7567,7 +7569,9 @@ a.anchor-link {
 <li>31(7) - 27(8) = 1</li>
 </ul>
 <p>So, yes, by moving 7 thrusts forward and 8 thrusts back, I can get to a place exactly 1 x 13mm length from the start.</p>
-<p>That's 15 thrusts, which I think is probably the minimum number of steps to get back to this minimum distance from the start. I can check this with a little python program:</p>
+<p>That's 15 thrusts.</p>
+<p>Is this the minimum number of steps to get back to this minimum distance from the start?</p>
+<p>We can check with a little python program:</p>
 </div>
 </div>
 </div>
@@ -7576,7 +7580,7 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [7]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [21]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
@@ -7614,7 +7618,8 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>What about it I move back further, to 1 length back from the start? Can I do that in less than 15 thrusts?</p>
+<p>So, yes, 15 is the minimun.</p>
+<p>What about it we move back further, to -1 length (-13mm) from the start? Can I do that in less than 15 thrusts?</p>
 </div>
 </div>
 </div>
@@ -7623,7 +7628,7 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [5]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [22]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">min</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span>
@@ -7653,6 +7658,18 @@ a.anchor-link {
 <pre>No solution found less than 15
 </pre>
 </div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fe8550db">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>No we can't.</p>
+<p>13mm is the closest we can get to the landing mark without actually hovering directly over the start line, and 15 thrusts in the minimum number to get there.</p>
 </div>
 </div>
 </div>

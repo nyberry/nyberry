@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Making Sense of Uncertainty</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+
+<body class="blog comments">
+
+  <nav>
+    <div class="menu"><a href="/index" aria-label="Home">
+      <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512">
+        <path fill="currentColor" d="M541 229.16L327.41 43a35.84 35.84 0 0 0-46.8 0L35 229.16a16 16 0 0 0-1.16 22.59l21.41 23.57a16 16 0 0 0 22.59 1.16L96 240.81V464a16 16 0 0 0 16 16h112a16 16 0 0 0 16-16V352h96v112a16 16 0 0 0 16 16h112a16 16 0 0 0 16-16V240.81l18.16 15.67a16 16 0 0 0 22.59-1.16l21.41-23.57a16 16 0 0 0-1.16-22.59z"/>
+      </svg>
+    </a></div>
+    <ul class="menu">
+      <li><a href="/bio">Bio</a></li>
+      <li><a href="/blog/">Blog</a></li>
+      <li><a href="/clini">Clini</a></li>
+
+      <!-- 
+      <li class="dropdown">
+        <a href="#">Stuff ▾</a>
+        <ul class="dropdown-content">
+          <li><a href="/games/sumfing/sumfing">Sumfing</a></li>  
+        </ul>
+      </li>
+    -->
+
+      <li class="dropdown">
+        <a href="#">Tools ▾</a>
+        <ul class="dropdown-content">
+          <li><a href="/tools/bmi">BMI</a></li>  
+          <li><a href="/tools/colorblind">Colour Vision Test</a></li>
+          <li><a href="/tools/neuro">Dermatomes</a></li>
+          <li><a href="/tools/growth">Growth Charts</a></li>
+          <li><a href="/tools/icd10">ICD-10 Lookup</a></li>
+          <li><a href="/tools/gfr">Kidney Calculator</a></li>
+          <li><a href="/tools/labconverter">Lab Unit Converter</a></li>
+          <li><a href="/tools/paedsdoses">Paeds Doses</a></li>
+          <li><a href="/tools/snellen">Visual Acuity</a></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+
+  <main class="main-container">
+      
+      <div class="blog-container">
+        <h1 class="blog-title">Making Sense of Uncertainty</h1>
+        <div class="blog-date">
+          Nick Berry
+          <br>
+          
+            January 15, 2026
+          
+        </div>
+        <p>Doctors and data scientists often ask the same question:</p>
+<blockquote>
+<p>Given imperfect information, how confident should I be in this decision?</p>
+</blockquote>
+<p>Clinicians talk about sensitivity, specificity, and likelihood ratios.
+Data scientists talk about confusion matrices, accuracy, and precision.</p>
+<p>They are describing the same ideas, just in different terms.</p>
+<p>This post is an attempt to capture these concepts in one place. To clarify my own thinking, and maybe as a reference for others working at the interface between healthcare and data science.</p>
+<h2>Sensitivity and Specificity: How good is a diagnostic test?</h2>
+<p>Imagine a simple test that tries to detect a disease: yes or no. And people either truly have the disease, or don't.</p>
+<h2>Sensitivity</h2>
+<p>Sensitivty refers to the ability of a test to correctly identify a disease in people who have it:</p>
+<blockquote>
+<p>If the person truly has the disease, how likely is a the test to be positive?</p>
+</blockquote>
+<p>D-dimer is a sensitive test for deep vein thrombosis (DVT). Modern lab tests have a sensitivity of about 95%. If 100 people truly have DVT, a d-dimer test will diagnose DVT in 95.</p>
+<p>A sensitive test has a high <em>negative predictive value (NPV)</em>. It is good at ruling out a diagnosis.</p>
+<p>Coupled with a low clinically assessed probability, a negative d-dimer test can effectively rule out a DVT and avoid the need for imaging tests. This touches on Bayes theorem, which will we'll get to soon.</p>
+<h2>Specificity</h2>
+<p>Specificity refers to the ability of a test to correctly identify those <em>without</em> the disease:</p>
+<blockquote>
+<p>If the person truly does not have the disease, how likely is the test to be negative?</p>
+</blockquote>
+<p>This can be a more challenging proposition, containing a double negative.</p>
+<p>D-dimer is not a very specific test for DVT. It's a marker for the general process of clot formation and breakdown. Lots of other conditions can affect it, like pregnancy, cancer, infections, and recent surgery. Only around 60% of people who do NOT have DVT will have a negative d-dimer, and so the specificity for DVT is only around 60%.</p>
+<p>Doppler ultrasound scanning has a specificity of around 95% for DVT. So, 95% of people who don't have DVT will have a negative scan. Only 5% of people who don't have DVT will have a positive scan. A positive test rules the disease in, and doctors can be pretty confident starting treatment.</p>
+<p>However, the sensitivity of doppler ultrasound can be as low as 50% for below knee DVT in asymptomatic patients. If the test is negative, they may still have a DVT and so a doctor might feel much less confident in NOT treating them. There are workarounds such as rescanning after a week - no-one said medicine was going to be easy.</p>
+<h2>SN-N-OUT SP-P-IN</h2>
+<p>Sensitivity and specificity can be confusing cousins, but thankfully we have the SN-N-OUT SP-P-IN trick to help remember which is which.</p>
+<ul>
+<li>If a test has high SeNsitivity, and the result is Negative, it helps rule a disease OUT.</li>
+<li>If a test has high SPecificity, and the result is Positive, it helps rule the disease IN.</li>
+</ul>
+<img src="images/uncertainty/snoutspin.jpeg" alt="snoutspin" class="blog-img">
+<h2>Likelihood Ratios</h2>
+<p>Likelihood ratios are Bayes in a clincally usable form.</p>
+<p>The positive likelihood ratio (LR+) answers:</p>
+<blockquote>
+<p>&quot;How much more likely is a positive result in someone with the disease, than without?&quot;</p>
+</blockquote>
+<p>$LR+ = \frac{Sensitivity}{1-Specificity}$</p>
+<p>A test with a high LR+ (&gt;10) can provide strong evidence to rule a condition in. low LR+ (close to 1) is pretty useless.</p>
+<p>And the negative likelihood ratio (LR-) answers:</p>
+<blockquote>
+<p>“How much less likely is a negative result in someone with disease than in someone without disease?”</p>
+</blockquote>
+<p>$LR- = \frac{1-Sensitivity}{Specificity}$</p>
+<p>A test with a low LR- (&lt;.1) can provide strong evidence to rule a condition out.</p>
+<h2>Predictive Values</h2>
+<p>It's important to remember that sensitivity and specificity are just properties of a test. To figure out whether a patient has a disease requires a little more thought.</p>
+<p>Once you ask:</p>
+<blockquote>
+<p>Given this result, what is the probability the patient has the disease?</p>
+</blockquote>
+<p>You’ve crossed into Bayesian territory, whether you like it or not.</p>
+<p>The Positive Predictive Value (PPV) of a test is given by $PPV = \frac{True Positives}{All Positive Tests}$</p>
+<p>This depends heavily on disease prevalence.</p>
+<p>Even if it has good sensitivity and specificity, a test can have woeful predictive value in a low prevalence population. This is particularly something to think about when screening for rare diseases.</p>
+<h2>Bayes Theorem</h2>
+<img src="images/uncertainty/ThomasBayes.webp" alt="Thomas Bayes" class="blog-img">
+<p>Thomas Bayes (c. 1701–1761) was an English mathematician, renowned for his foundational work in probability, particularly the theorem that bears his name.</p>
+<p>Bayes' Theorem provides a mathematical way to update an estimate of how likely something is, after you have seen new evidence. It is crucial in healthcare and also in AI, machine learning, and data science.</p>
+<p>Bayes says:</p>
+<blockquote>
+<p>Posterior probability = Prior belief × Strength of new evidence</p>
+</blockquote>
+<p>Applied to diagnostic testing, What you think after a test (posterior probability) depends on what you thought before (prior probability), and on how informative or 'surprising' the test result is</p>
+<p>Mathematically:</p>
+<p>$P(\text{Disease} \mid \text{Test}) =
+\frac{P(\text{Test} \mid \text{Disease}) , P(\text{Disease})}
+{P(\text{Test})}$</p>
+<h2>Example: tests for chest pain</h2>
+<p>Two patients have some soreness in the chest.</p>
+<ul>
+<li>35-year-old athlete, aches after sport</li>
+<li>75-year-old smoker, gets pain walking up a hill</li>
+</ul>
+<p>The initial sense that the first probably doesn't have angina, and the second probably does, is your <em>clinical prior</em> and you cannot escape having one.</p>
+<p>A treadmill exercise ECG (exercise stress test) result can mean very different things depending on the pre-test probability.</p>
+<p>Unfortunately it is not a very discerning test, with a sensitivity of 80% and a specificity of just 70%.</p>
+<p>This implies:</p>
+<p>$LR+ = \frac{0.80}{1-0.70} = 2.67$, and $LR- = \frac{1-0.80}{0.70} = 0.286$</p>
+<p>Coronary heart disease is very uncommon in young, low risk patients. You might judge the pretest risk (the clinical prior) for the younger athlete to be just 5%.</p>
+<p>If an exercise test is positive:</p>
+<ul>
+<li>pre-test odds = 0.05 / 0.95 = 0.053</li>
+<li>post-test odds = 0.053 x 2.67 = 0.14</li>
+<li>post-test probability = 0.14 / (1+0.14) = 12.3%</li>
+</ul>
+<p>If the test is negative:</p>
+<ul>
+<li>post-test odds = 0.053 * 0.286 = 0.015</li>
+<li>post-test probability = 0.015/ (1+0.015) = 1.5%</li>
+</ul>
+<p>Positive or negative, the condition is still unlikley and the test hasn't helped move things on very much. Maybe we didn't need to do the test.</p>
+<p>For the older patient, the clinical prior (also known as gut feeling or spidey sense) may be much higher, perhaps 75%.</p>
+<p>In this case, applying Bayes theorem we find that the probability will be about 89% after a positive test, and about 46% after a negative test.</p>
+<p>Actually, in this case a negative test is not hugely reassuring, the condition is about as likely as a coin flip. Maybe we shouldn't have done it here either. It is a weak test.</p>
+<p>A test result only changes your mind if it would be unexpected given your starting assumption.</p>
+<p>If you already think a disease is unlikely, and the test result is something you often see in healthy people, your belief barely shifts.</p>
+<p>If you already think a disease is likely, and the test result is noisy or unreliable, again, your belief hardly shifts.</p>
+<p>But if a disease seems unlikely and the test result would be very unusual without the disease, your belief must change. A strong test matters most when it contradicts your initial expectation.</p>
+<p>Bayes’ theorem is simply the formal description of this process:</p>
+<blockquote>
+<p>How much your belief changes depends on how incompatible the result is with what you thought before.</p>
+</blockquote>
+<p>Or, more clinically:</p>
+<blockquote>
+<p>A test only changes your mind if it makes your previous belief uncomfortable.</p>
+</blockquote>
+<h2>Relevance to Machine Learning</h2>
+<p>Now let's rename things.</p>
+<p>Now let’s quietly rename things.</p>
+<p>Clinical Term	ML Term
+True positive	True positive
+False positive	False positive
+Sensitivity	Recall
+Specificity	True negative rate
+PPV	Precision
+Disease prevalence	Class imbalance</p>
+<p>A confusion matrix is just the 2×2 table you’ve always known, now given a trendy name.</p>
+<p>From it, we derive:</p>
+<p>Accuracy</p>
+<p>𝑇
+𝑃
++
+𝑇
+𝑁
+All predictions
+All predictions
+TP+TN
+​</p>
+<p>Often misleading in imbalanced datasets (hello rare diseases).</p>
+<p>Precision
+“If the model predicts positive, how often is it right?”
+(≈ PPV)</p>
+<p>Recall
+“Of all true positives, how many did we catch?”
+(≈ Sensitivity)</p>
+<p>In healthcare ML, accuracy is usually the least interesting metric.</p>
+<p>What fascinates me is not that medicine and machine learning use different terminology –
+it’s that they’re wrestling with the same uncertainty, just at different scales.</p>
+<p>Clinicians: “Should I act on this test?”</p>
+<p>Models: “Should I classify this as positive?”</p>
+<p>Both live or die by:</p>
+<p>Base rates</p>
+<p>Trade-offs</p>
+<p>Explicit thinking about error</p>
+<h2>ROC Curves and Thresholds</h2>
+<p>Most diagnostic tests don’t give a simple yes/no answer. They give a number:</p>
+<p>Troponin level</p>
+<p>D-dimer value</p>
+<p>Risk score</p>
+<p>Model probability</p>
+<p>To turn that number into a decision, we choose a threshold.</p>
+<p>Above this value: treat as positive.
+Below this value: treat as negative.</p>
+<p>But changing the threshold always involves a trade-off.</p>
+<p>The ROC curve</p>
+<p>A Receiver Operating Characteristic (ROC) curve shows what happens as you slide the threshold from “very strict” to “very relaxed”.</p>
+<p>Y-axis: Sensitivity (true positive rate)</p>
+<p>X-axis: 1 − Specificity (false positive rate)</p>
+<p>Each point on the curve is a different threshold.</p>
+<p>Key idea:</p>
+<p>The ROC curve describes how well a test can separate disease from non-disease — independent of where you set the threshold.</p>
+<p>Area Under the Curve (AUC)</p>
+<p>AUC = 0.5 → useless (coin flip)</p>
+<p>AUC = 1.0 → perfect discrimination</p>
+<p>But here’s the crucial clinical insight:</p>
+<p>A high AUC does not tell you which threshold to use.</p>
+<p>That decision depends on harms, benefits, and context, not statistics alone.</p>
+<p>Clinical translation</p>
+<p>D-dimer uses a low threshold → prioritises sensitivity → few missed clots</p>
+<p>Troponin thresholds balance sensitivity against unnecessary admissions</p>
+<p>AI triage tools often output probabilities — but someone still has to choose the cut-off</p>
+<p>ROC curves show what’s possible, not what’s sensible.</p>
+<h2>Calibration vs Discrimination</h2>
+<p>These two concepts are often confused — and both matter.</p>
+<p>Discrimination: can the test rank patients correctly?</p>
+<p>Discrimination asks:</p>
+<p>Can the test tell high-risk patients from low-risk patients?</p>
+<p>Measured by AUC</p>
+<p>About ordering, not absolute truth</p>
+<p>A model with good discrimination tends to give:</p>
+<p>Higher scores to sicker patients</p>
+<p>Lower scores to healthier ones</p>
+<p>Even if the probabilities themselves are wrong.</p>
+<p>Calibration: are the probabilities believable?</p>
+<p>Calibration asks:</p>
+<p>When the model says “20% risk”, does that actually happen about 20% of the time?</p>
+<p>A model can:</p>
+<p>Rank patients perfectly (great discrimination)</p>
+<p>But systematically over- or under-estimate risk (poor calibration)</p>
+<p>Clinical analogy</p>
+<p>Discrimination: “Who should I worry about more?”</p>
+<p>Calibration: “Can I trust this number enough to act on it?”</p>
+<p>Risk calculators used for:</p>
+<p>Starting statins</p>
+<p>Anticoagulation</p>
+<p>ICU admission</p>
+<p>must be well calibrated, not just good at ranking.</p>
+<h2>Overfitting and Over-diagnosis</h2>
+<p>A model is overfitted when it:</p>
+<ul>
+<li>Learns noise instead of signal</li>
+<li>Performs brilliantly on training data</li>
+<li>Fails badly on new data</li>
+</ul>
+<p>It has memorised the past, not learned the future.</p>
+<p>Over-diagnosis, in medicine, happens when we:</p>
+<ul>
+<li>Detect abnormalities that would never cause harm</li>
+<li>Label patients unnecessarily</li>
+<li>Create treatment cascades without benefit</li>
+</ul>
+<p>Examples are thyroid microcarcinomas, incidentalomas, and PSA screening.</p>
+
+      </div>
+    
+
+  
+      <br><br>
+      <div class="comments">
+        <h3>Leave a comment</h3>
+        <div id="cusdis_thread"
+            data-host="https://cusdis.com"
+            data-app-id="c1b4f7e2-a0ab-4847-8541-841005a8c578"
+            data-page-id="/blog/uncertainty/"
+            data-page-url="https://nyberry.com/blog/uncertainty/"
+            data-page-title="Making Sense of Uncertainty">
+        </div>
+      </div>
+      <script async defer src="https://cusdis.com/js/cusdis.es.js"></script>
+  
+  </main>
+</body>
+</html>

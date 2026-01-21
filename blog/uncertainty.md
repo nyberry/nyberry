@@ -3,7 +3,7 @@ title: "Making Sense of Uncertainty"
 layout: layout.html
 description: Diagnosis, Confusion, Bayes, and Machine Learning.
 image: /blog/images/uncertainty.png
-date: 2026-1-15
+date: 2026-01-15
 tags: [blog, comments]
 order: 200
 ---

@@ -3,7 +3,12 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy("assets");
   eleventyConfig.addPassthroughCopy("blog/images");
   eleventyConfig.addPassthroughCopy("games/sumfing/assets");
-  
+
+  eleventyConfig.addPassthroughCopy("blog/uncertainty.md");
+
+
+  eleventyConfig.addPassthroughCopy("moonwalk.html");
+
   // Collection: pages
   eleventyConfig.addCollection("pages", function(collectionApi) {
   return collectionApi.getAll().filter(item =>
@@ -14,6 +19,8 @@ module.exports = function(eleventyConfig) {
   )
   .sort((a, b) => b.date - a.date);   // 👈 newest first
 });
+
+
 
 
   return {

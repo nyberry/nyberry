@@ -4,9 +4,6 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy("blog/images");
   eleventyConfig.addPassthroughCopy("games/sumfing/assets");
 
-  eleventyConfig.addPassthroughCopy("blog/uncertainty.md");
-
-
   eleventyConfig.addPassthroughCopy("moonwalk.html");
 
   // Collection: pages

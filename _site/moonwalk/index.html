@@ -7517,14 +7517,15 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="Tacticus's-Moon-Hopper-Mystery">Tacticus's Moon Hopper Mystery<a class="anchor-link" href="#Tacticus's-Moon-Hopper-Mystery">¶</a></h2><p>"A moon-hopper’s navigation boots are malfunctioning. Each thruster firing causes a fixed drift along a straight line:</p>
+<h2 id="Tacticus's-Moon-Hopper-Mystery">Tacticus's Moon Hopper Mystery<a class="anchor-link" href="#Tacticus's-Moon-Hopper-Mystery">¶</a></h2><blockquote>
+<p>A moon-hopper’s navigation boots are malfunctioning. Each thruster firing causes a fixed drift along a straight line:</p>
 <p>Left thruster: 403 mm forward</p>
 <p>Right thruster: 351 mm backward</p>
 <p>The thrusters are perfectly accurate but cannot be adjusted. Each firing counts as one move, and you may fire either thruster any number of times, in any order.</p>
 <p>You begin hovering exactly over a painted landing mark.</p>
 <p>How close can you ever hover to the landing mark without being exactly on it?</p>
-<p>What is the fewest number of thruster firings needed to achieve that closest approach?"</p>
-<hr/>
+<p>What is the fewest number of thruster firings needed to achieve that closest approach?"*</p>
+</blockquote>
 </div>
 </div>
 </div>
@@ -7537,40 +7538,27 @@ a.anchor-link {
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <p>Well, both 403 and 351 are multiples of 13:</p>
 <ul>
-<li>31 x 13 = 403</li>
-<li>27 x 13 = 351</li>
+<li>$31 * 13 = 403$</li>
+<li>$27 * 13 = 351$</li>
 </ul>
-<p>This means we can only ever move forward or backward by some multiple of 13 mm.</p>
-<p>If we wanted, we could return to hover directly over the landing spot by taking 27 thrusts forward and 31 thrusts backward.</p>
-<p>But the next closest hovering stations would be at some multiple of 13mm.</p>
+<p>In fact, 13 is their greatest common divisor. This means we can only ever move forward or backward by some multiple of 13mm.
+So let's simplify things and think in 13mm steps.</p>
+<p>A forward thrust moves 31 steps and a backward thrust moves 27 steps.</p>
+<p>If we move f thrusts forward and b thrusts backwards, my position (in 13mm steps) is given by:</p>
+<ul>
+<li>$p = 31f - 27b$</li>
+</ul>
+<p>Can we return to hover at a spot just one step (13mm) away from the landing strip? For this to work, we must find some combination of n and m such that:</p>
+<ul>
+<li>$abs(31f - 27b) = 1$</li>
+</ul>
+<p>Let f = 7 and b = 8:</p>
+<ul>
+<li>$31(7) - 27(8) = 1$</li>
+</ul>
+<p>So, yes, by moving 7 thrusts forward and 8 thrusts back, we can get to a place exactly 1 step (13mm) from the start. And because we can only move in 13mm steps, we know we cant get any closer without being directly over it.</p>
 <hr/>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=a47b43f3">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>So let's simplify things and think in 13mm lengths.</p>
-<p>A forward thrust moves 31 lengths and a backward thrust moves 27 lengths.</p>
-<ul>
-<li>f = 31</li>
-<li>b = -27</li>
-</ul>
-<p>Can I find some combination of n and m such that nf + mb = 1 or -1?</p>
-<ul>
-<li>31n - 27m = 1</li>
-</ul>
-<p>let n = 7 and m = 8:</p>
-<ul>
-<li>31(7) - 27(8) = 1</li>
-</ul>
-<p>So, yes, by moving 7 thrusts forward and 8 thrusts back, I can get to a place exactly 1 x 13mm length from the start.</p>
-<p>That's 15 thrusts.</p>
-<p>Is this the minimum number of steps to get back to this minimum distance from the start?</p>
+<p>Is this the minimum number of thruster firings to get back to this closest approach?</p>
 <p>We can check with a little python program:</p>
 </div>
 </div>
@@ -7580,19 +7568,21 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [21]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [39]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="nb">min</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span>
-<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">16</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">16</span><span class="p">):</span>
-        <span class="k">if</span> <span class="mi">31</span><span class="o">*</span><span class="n">n</span> <span class="o">-</span> <span class="mi">27</span><span class="o">*</span><span class="n">m</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">n</span> <span class="o">+</span> <span class="n">m</span> <span class="o">&lt;</span> <span class="nb">min</span><span class="p">:</span>
-                <span class="nb">min</span> <span class="o">=</span> <span class="n">n</span> <span class="o">+</span> <span class="n">m</span>
-                <span class="n">a</span> <span class="o">=</span> <span class="n">n</span>
-                <span class="n">b</span> <span class="o">=</span> <span class="n">m</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'n=</span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s1">, m=</span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>    
+
+<span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">16</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">16</span><span class="o">-</span><span class="n">f</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="mi">31</span><span class="o">*</span><span class="n">f</span> <span class="o">-</span> <span class="mi">27</span><span class="o">*</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">f</span> <span class="o">+</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="nb">min</span><span class="p">:</span>
+                <span class="nb">min</span> <span class="o">=</span> <span class="n">f</span> <span class="o">+</span> <span class="n">b</span>
+                <span class="n">f_ans</span> <span class="o">=</span> <span class="n">f</span>
+                <span class="n">b_ans</span> <span class="o">=</span> <span class="n">b</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'f=</span><span class="si">{</span><span class="n">f_ans</span><span class="si">}</span><span class="s1">, b=</span><span class="si">{</span><span class="n">b_ans</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>    
 </pre></div>
 </div>
 </div>
@@ -7605,7 +7595,7 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>n=7, m=8
+<pre>f=7, b=8
 </pre>
 </div>
 </div>
@@ -7619,57 +7609,6 @@ a.anchor-link {
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <p>So, yes, 15 is the minimun.</p>
-<p>What about it we move back further, to -1 length (-13mm) from the start? Can I do that in less than 15 thrusts?</p>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=a878cdae">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [22]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="nb">min</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span>
-<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">15</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">15</span><span class="p">):</span>
-        <span class="k">if</span> <span class="mi">31</span><span class="o">*</span><span class="n">n</span> <span class="o">-</span> <span class="mi">27</span><span class="o">*</span><span class="n">m</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">n</span> <span class="o">+</span> <span class="n">m</span> <span class="o">&lt;</span> <span class="nb">min</span><span class="p">:</span>
-                <span class="nb">min</span> <span class="o">=</span> <span class="n">n</span> <span class="o">+</span> <span class="n">m</span>
-                <span class="n">a</span> <span class="o">=</span> <span class="n">n</span>
-                <span class="n">b</span> <span class="o">=</span> <span class="n">m</span>
-<span class="k">if</span> <span class="nb">min</span> <span class="o">&lt;</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'n=</span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s1">, m=</span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span> 
-<span class="k">else</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">"No solution found less than 15"</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
-<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>No solution found less than 15
-</pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fe8550db">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>No we can't.</p>
-<p>13mm is the closest we can get to the landing mark without actually hovering directly over the start line, and 15 thrusts in the minimum number to get there.</p>
 </div>
 </div>
 </div>

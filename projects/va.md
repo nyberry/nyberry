@@ -4,6 +4,6 @@ title: "C&P Toolkit"
 description: "Tool to help when preparing for a day of C&P medical examinations."
 image: "/assets/images/va.jpeg"
 date: 2026-02-01
-redirect_to: "https://nyberry.github.io/cptoolkit/"
+redirect_to: "https://github.com/nyberry/cpprep"
 order: 30
 ---

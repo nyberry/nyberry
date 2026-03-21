@@ -1,0 +1,558 @@
+<h1>HDPM_097 Discrete Event Simulation Project</h1>
+<p>Authors:  NA, NB, LB</p>
+<h2>Abstract</h2>
+<p>(Write this last)</p>
+<h2>Introduction</h2>
+<p>Discrete-event simulation (DES) is used to analyse patient flow, queues, capacity constraints and resource allocation in healthcare systems. In Python, the <code>SimPy</code> library provides a framework for implementing DES models, allowing entities, resources, delays and routing rules to be represented in code.</p>
+<p>However, while DES studies are often published in the health services literature, the underlying code of models are frequently unavailable. This creates a problem for reproducibility: model logic, assumptions and parameterisation must be inferred from descriptions, figures and tables rather than from the original implementation.</p>
+<p>This study focuses on the stroke pathway model reported by Monks et al. (2016), which examined capacity planning in acute and community stroke services. Their model represented the flow of stroke, high-risk transient ischaemic attack (TIA), complex neurological and other patients through an acute stroke unit, inpatient rehabilitation and early supported discharge, and used simulation outputs to estimate the probability of admission or transfer delay under alternative bed configurations. The paper was selected because it provides a clear pathway diagram, is explicit about distribution assumptions, and includes output tables and charts against which a recreation can be compared.</p>
+<p>The project was designed not only as a modelling exercise but also as a research study in iterative model recreation using large language models (LLMs). Specifically, we explored whether a simulation described in natural language could be recreated in Python and <code>SimPy</code> through a structured sequence of prompts and refinements, and how that process differed when using different AI assistants.</p>
+<p>The study therefore combines two related aims: first, to produce a working and understandable recreation of the Monks et al. model; and second, to compare manual and agentic AI-assisted workflows for building and validating that recreation.</p>
+<h2>Methods</h2>
+<h2>1. Selection of published model</h2>
+<p>We analysed 4 candidate articles. These are:</p>
+<ul>
+<li><strong>Penn et al. (2019)</strong> — <em>Towards generic modelling of hospital wards: Reuse and redevelopment of simple models</em></li>
+<li><strong>Lahr et al. (2013)</strong> — <em>A Simulation-based Approach for Improving Utilization of Thrombolysis in Acute Brain Infarction</em></li>
+<li><strong>Griffiths et al. (2010)</strong> — <em>A simulation model of bed-occupancy in a critical care unit</em></li>
+<li><strong>Monks et al. (2016)</strong> — <em>A modelling tool for capacity planning in acute and community stroke services</em></li>
+</ul>
+<p>We compared these articles, considering:</p>
+<ul>
+<li><strong>Model structure</strong> — How clearly is the model logic described</li>
+<li><strong>Data completeness</strong> — Are distribution types and parameters fully reported?</li>
+<li><strong>SimPy feasibility</strong> — How naturally does the model map to SimPy constructs such as resources, queues and processes?</li>
+<li><strong>Validation opportunity</strong> — Are there reported outputs to validate a recreation against?</li>
+<li><strong>Simplification scope</strong> — Can the model be reasonably simplified, if necessary, while meeting the assignment's minimum complexity requirement?</li>
+</ul>
+<p>The group agreed to proceed with the <strong>Monks et al. (2016)</strong> paper. The rationale for selection was that this study offered a clear model structure and pathway logic, sufficient reporting of parameters and process flow, and several published output tables suitable for validation. It also met the assignment requirement that the recreated model should have at least one type of patient and multiple activities, or multiple patient types and one activity.</p>
+<p>Monks et al. describe a discrete-event simulation model using aggregate parameter values derived from more than 2000 anonymised admission and discharge timestamps. The model mimics the flow of stroke, high-risk TIA, complex neurological and other patients from admission to an acute ward through to community rehabilitation and early supported discharge, and predicts the probability of admission or transfer delay under different bed-capacity scenarios.</p>
+<h2>2. Activities, resources and routing.</h2>
+<p>Before writing code, we extracted the model structure from the paper and appendix and translated it into a simplified conceptual representation suitable for implementation in <code>SimPy</code>. This process followed the assignment guidance to identify activities, resources, routing rules, and data inputs before generating or modifying code. The model logic is summarised in Figure 1.</p>
+<p><img src="assets/figures/fig1.jpg" alt="Figure 1. Conceptual discrete-event simulation model of the stroke pathway."></p>
+<p>Figure 1 was used as a reference diagram during model design and prompt engineering. In particular, it helped standardise terminology across prompts and manual edits by making the sequence of arrivals, acute occupancy, rehabilitation occupancy and discharge destinations explicit.</p>
+<h2>2.1 Entities</h2>
+<p>The model contains one entity type:</p>
+<ul>
+<li>Patient</li>
+</ul>
+<p>Patients are categorised into four subtypes:</p>
+<ul>
+<li>Stroke</li>
+<li>TIA</li>
+<li>Complex Neurological</li>
+<li>Other</li>
+</ul>
+<p>Each subtype has distinct inter-arrival distributions, length-of-stay distributions, and transfer probabilities.</p>
+<h2>2.2 Activities</h2>
+<p>In DES, activities are processes that consume simulation time. Based on the paper and supplementary appendix, the main activities in the recreated model were:</p>
+<h3>Activity 1 - Arrival at acute stoke unit</h3>
+<ul>
+<li>inter-arrival times (IAT): exponential</li>
+<li>separate IATs for each patient group:
+<ul>
+<li>Acute stroke, 1.2 days</li>
+<li>TIA, 9.3 days</li>
+<li>Complex neurological, 3.6 days</li>
+<li>Other, 3.2 days</li>
+</ul>
+</li>
+</ul>
+<h3>Activity 2 - Acute ward stay</h3>
+<ul>
+<li>Duration: Lognormal distribution</li>
+<li>Parameters differ by patient type:
+<ul>
+<li>Acute stroke, no ESD: 7.4 days</li>
+<li>Acute stroke, ESD: 4.6 days</li>
+<li>Acute stroke mortality: 7.0 days</li>
+<li>TIA: 1.8 days</li>
+<li>Complex neurological: 4.0 days</li>
+<li>Other: 3.8 days</li>
+</ul>
+</li>
+</ul>
+<h3>Activity 3 - Rehabilitation ward stay (if routed)</h3>
+<ul>
+<li>Duration: Lognormal distribution</li>
+<li>Parameters from the supplementary appendix rehabilitation length-of-stay table</li>
+</ul>
+<h2>2.3 Resources</h2>
+<p>The published Monks et al. model is described as unconstrained in the sense that patient demand is simulated without bed-capacity blocking within the core model logic. Instead, occupancy is audited over time and the probability of delay is calculated by comparing the occupancy distribution with candidate bed numbers.</p>
+<p>For that reason, the recreated model treats the following bed numbers as the <em>base scenario</em> representing the observed service configuration rather than as fixed internal queue capacities:</p>
+<ul>
+<li>Acute stroke beds: 10 beds</li>
+<li>Rehab beds: 12 beds</li>
+</ul>
+<p>These values were used as the reference configuration for the current-admissions validation scenario, after which alternative bed capacities were explored.</p>
+<h2>2.4 Routing Logic</h2>
+<p>After completion of acute ward stay, patients are routed probabilistically according to the transfer matrix (appendix: table S3):</p>
+<ul>
+<li>Acute -&gt; Rehab unit</li>
+<li>Acute -&gt; Early Supported Discharge (ESD)</li>
+<li>Acute -&gt; Other (for example, own home, care home, or death)</li>
+</ul>
+<p>From Rehab:</p>
+<ul>
+<li>Rehab -&gt; ESD</li>
+<li>Rehab -&gt; Other</li>
+</ul>
+<p>This routing is implemented using multinomial sampling.</p>
+<p>Together, these activities, resources and routing rules formed the minimum viable model design. The final recreation retained multiple patient types and multiple pathway stages, but simplified some aspects of the original implementation where reporting in the paper was incomplete or where a simpler mechanism was sufficient for a transparent Python recreation.</p>
+<h2>2.5 Scenario design and execution settings</h2>
+<p>The paper reports a warm-up period of three years, a run length of five years, and 150 replications per scenario. These settings were adopted as the target design for the recreated model. During intermediate development, smaller runs were sometimes used to speed up debugging and prompt iteration; however, validation notebooks were structured around the published settings wherever possible.</p>
+<p>The main scenarios considered in the recreated study were:</p>
+<ul>
+<li>Current admissions</li>
+<li>5% more admissions</li>
+<li>Pooling of acute and rehabilitation beds</li>
+<li>No complex neurological patients</li>
+<li>Ring-fenced acute stroke beds</li>
+</ul>
+<p>These scenarios were selected because they are explicitly reported in the paper and supplementary appendix, making it possible to compare the recreated outputs with published tables and figures.</p>
+<h2>3. Iterative development of the model using LLM</h2>
+<p>The recreation process followed an iterative design strategy consistent with the assignment brief. Rather than attempting to generate the full model in a single prompt, the model was built in layers. Each iteration focused on a specific modelling task, such as extracting parameters, implementing arrivals, auditing occupancy, estimating <code>p(delay)</code>, or reproducing a published scenario table. After each iteration, the code was tested and either accepted, revised manually, or re-specified in a subsequent prompt.</p>
+<p>This iterative process had two main purposes. First, it reduced the risk of introducing large undetected errors into the model. Second, it provided a structured way to compare different forms of model development: manual coding, prompt-based generation with external LLMs, and agentic AI-assisted refinement in Codex.</p>
+<h2>3.1 Manual baseline and model design</h2>
+<p>The manual component of the study involved reading the paper and appendix, extracting explicit model assumptions, drawing up a conceptual model, and deciding how the system could be represented in <code>SimPy</code>. This included identifying patient groups, arrival processes, lognormal length-of-stay distributions, routing matrices, warm-up and run-length settings, and the published scenario outputs that would later be used for validation.</p>
+<p>Manual work was also used to:</p>
+<ul>
+<li>identify ambiguities in the paper</li>
+<li>decide which simplifications were acceptable</li>
+<li>review AI-generated code for correctness and clarity</li>
+<li>interpret differences between recreated and published results</li>
+</ul>
+<p>This baseline design stage was essential because the published article did not provide runnable source code and some parts of the original logic had to be inferred from the text and appendices.</p>
+<h2>3.2 Gemini-assisted iterations</h2>
+<p>[Placeholder for colleague: describe the Gemini workflow, prompts used, what code was generated, how many iterations were needed, what worked well, and what required manual correction.]</p>
+<h2>3.3 Claude-assisted iterations</h2>
+<p>[Placeholder for colleague: describe the Claude workflow, prompts used, what code was generated, how many iterations were needed, what worked well, and what required manual correction.]</p>
+<h2>3.4 Codex-assisted iterations</h2>
+<p>Codex was used as an agentic coding environment rather than as a single-turn code generator. In practice, this meant that the workflow combined code inspection, file editing, testing, notebook construction and iterative validation within the same environment. The development process proceeded through a sequence of numbered notebooks. The first iterations focused on project setup and parameter extraction; subsequent iterations implemented the occupancy-audit model, calibration logic, scenario analysis, and the final iteration is a consolidation of all previous iterations.</p>
+<p>Compared with one-shot prompting, the Codex workflow was closer to paired programming. Model behaviour could be checked after each change, and prompts could be framed as bounded engineering tasks such as:</p>
+<ul>
+<li>encode the paper parameters explicitly</li>
+<li>build the occupancy audit model</li>
+<li>reproduce the delay trade-off curve</li>
+<li>compare the recreated outputs against Table 2</li>
+<li>create a final technical appendix notebook</li>
+</ul>
+<p>This was a controlled and test-driven recreation process, although manual review was still required to detect modelling assumptions, interpret ambiguous reporting, and decide whether numerical differences from the published tables were acceptable.</p>
+<h2>3.5 Comparison of manual and AI-assisted approaches</h2>
+<p>Across all approaches, the most effective workflow was iterative rather than one-shot. In manual work, iteration was needed to refine the conceptual model and assumptions. In AI-assisted work, iteration was needed to tighten prompts, reduce ambiguity, inspect generated code, and correct errors. The broad pattern observed was that AI tools were useful for accelerating implementation and refactoring, but they did not remove the need for interpretation, testing, or critical review.</p>
+<h2>4. Validation and testing</h2>
+<p>Validation and testing were carried out at three levels.</p>
+<p>First, input validation was used to confirm that the encoded model parameters matched the paper and supplementary appendix. This included checking arrival rates from the model diagram, lognormal length-of-stay summaries, routing matrices, and published bed-capacity scenarios.</p>
+<p>Second, implementation testing was used to check that core model mechanics behaved as intended. Unit tests were written for distribution utilities, parameter registries, scenario helpers, pooling calculations, exclusion scenarios and validation-table generation. Smoke tests were also used to confirm that the occupancy-audit model ran successfully and produced the expected audit columns.</p>
+<p>Third, output validation compared the recreated model against the published results. This was done by reproducing the main occupancy and delay outputs reported by Monks et al., including:</p>
+<ul>
+<li>the acute occupancy distribution</li>
+<li>the acute delay trade-off curve</li>
+<li>current admissions versus 5% more admissions</li>
+<li>pooling scenarios</li>
+<li>the effect of removing complex neurological patients</li>
+<li>ring-fenced stroke-bed scenarios</li>
+</ul>
+<p>The primary validation metric was the difference between published and recreated <code>p(delay)</code> values for the relevant bed configurations. In addition to numerical comparison, qualitative agreement was also assessed by comparing the overall shape and pattern of figures and trade-off tables.</p>
+<p>Where outputs differed, these discrepancies were not treated simply as failures. Instead, they were interpreted in the context of the report’s research aim: to assess how closely a published DES model can be recreated from natural-language documentation, and to identify where ambiguity, simplification, or implementation choices most strongly affect the results.</p>
+<h2>Results</h2>
+<p>The final recreated model was implemented as simulation in Python using <code>SimPy</code>. The technical appendix contains the full runnable notebook, the supporting Python package, and the intermediate iteration notebooks showing how the model was refined. In total, the Codex-assisted strand produced ten numbered notebooks, progressing from project setup and parameter extraction to scenario validation and consolidation into a final end-to-end appendix notebook.</p>
+<p>The recreated model successfully reproduced the main qualitative behaviour of the Monks et al. study. In the base scenario, the simulated acute occupancy distribution had a similar unimodal shape to the published occupancy probability density function, and the recreated acute delay trade-off curve showed the same stepped decline in <code>p(delay)</code> as bed numbers increased. This indicates that the core pathway logic, arrival structure and length-of-stay assumptions were sufficient to recover the broad behaviour of the original model.</p>
+<h3>Figure 2. Recreated acute occupancy distribution</h3>
+<p><img src="technical_appendix/final_appendix/docs/figures/final_appendix_acute_occupancy_distribution.png" alt="Recreated acute occupancy distribution"></p>
+<p>This figure shows the simulated distribution of daily occupancy in the acute stroke unit under the current-admissions scenario. As in Monks et al., the distribution is concentrated around the mean occupancy and displays a right tail reflecting the probability of temporarily high bed demand. The figure is important because the later delay calculations are derived from this occupancy audit rather than from direct blocking of patients in a fixed-capacity ward.</p>
+<h3>Figure 3. Recreated acute bed trade-off curve</h3>
+<p><img src="technical_appendix/final_appendix/docs/figures/final_appendix_acute_delay_tradeoff.png" alt="Recreated acute delay trade-off curve"></p>
+<p>This figure reproduces the logic of the paper’s trade-off curve by showing how the estimated probability of delay falls as acute bed numbers increase. The stepped form of the curve is consistent with the published figure and demonstrates that relatively small changes in bed numbers can produce large changes in delay probability at low capacity levels, followed by diminishing returns as more capacity is added.</p>
+<h3>Current admissions versus 5% more admissions</h3>
+<p>The recreated model was closest to the published results when delay was estimated using the Erlang-loss-style occupancy calculation described in the paper rather than a naive threshold probability. Under the current-admissions scenario, the mean absolute error between published and recreated <code>p(delay)</code> values was small for both acute and rehabilitation beds. Similar agreement was observed for the <code>5% more admissions</code> scenario.</p>
+<p><strong>Table 1. Acute beds: published versus recreated results for current admissions and 5% more admissions</strong></p>
+<table>
+<thead>
+<tr>
+<th>Beds</th>
+<th style="text-align:right">Published current p(delay)</th>
+<th style="text-align:right">Recreated current p(delay)</th>
+<th style="text-align:right">Published +5% p(delay)</th>
+<th style="text-align:right">Recreated +5% p(delay)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10</td>
+<td style="text-align:right">0.14</td>
+<td style="text-align:right">0.14</td>
+<td style="text-align:right">0.16</td>
+<td style="text-align:right">0.16</td>
+</tr>
+<tr>
+<td>11</td>
+<td style="text-align:right">0.09</td>
+<td style="text-align:right">0.09</td>
+<td style="text-align:right">0.11</td>
+<td style="text-align:right">0.11</td>
+</tr>
+<tr>
+<td>12</td>
+<td style="text-align:right">0.06</td>
+<td style="text-align:right">0.06</td>
+<td style="text-align:right">0.07</td>
+<td style="text-align:right">0.07</td>
+</tr>
+<tr>
+<td>13</td>
+<td style="text-align:right">0.04</td>
+<td style="text-align:right">0.04</td>
+<td style="text-align:right">0.05</td>
+<td style="text-align:right">0.05</td>
+</tr>
+<tr>
+<td>14</td>
+<td style="text-align:right">0.02</td>
+<td style="text-align:right">0.02</td>
+<td style="text-align:right">0.03</td>
+<td style="text-align:right">0.03</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 2. Rehabilitation beds: published versus recreated results for current admissions and 5% more admissions</strong></p>
+<table>
+<thead>
+<tr>
+<th>Beds</th>
+<th style="text-align:right">Published current p(delay)</th>
+<th style="text-align:right">Recreated current p(delay)</th>
+<th style="text-align:right">Published +5% p(delay)</th>
+<th style="text-align:right">Recreated +5% p(delay)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>12</td>
+<td style="text-align:right">0.11</td>
+<td style="text-align:right">0.11</td>
+<td style="text-align:right">0.13</td>
+<td style="text-align:right">0.13</td>
+</tr>
+<tr>
+<td>13</td>
+<td style="text-align:right">0.08</td>
+<td style="text-align:right">0.08</td>
+<td style="text-align:right">0.09</td>
+<td style="text-align:right">0.09</td>
+</tr>
+<tr>
+<td>14</td>
+<td style="text-align:right">0.05</td>
+<td style="text-align:right">0.05</td>
+<td style="text-align:right">0.07</td>
+<td style="text-align:right">0.06</td>
+</tr>
+<tr>
+<td>15</td>
+<td style="text-align:right">0.03</td>
+<td style="text-align:right">0.03</td>
+<td style="text-align:right">0.04</td>
+<td style="text-align:right">0.04</td>
+</tr>
+<tr>
+<td>16</td>
+<td style="text-align:right">0.02</td>
+<td style="text-align:right">0.02</td>
+<td style="text-align:right">0.02</td>
+<td style="text-align:right">0.03</td>
+</tr>
+</tbody>
+</table>
+<p>These results suggest that the recreated occupancy-audit model provides a good approximation to the reported base-case and increased-demand results, for both the acute and rehab wards.</p>
+<h3>Effect of complex neurological patients on flow</h3>
+<p>The recreated model captured the direction of effect for the <code>no complex neurological patients</code> scenario, with lower delay probabilities in both acute and rehabilitation units once that patient group was removed. Agreement was stronger for the acute unit than for rehabilitation, suggesting that the recreated pathway captures the main demand effect of complex neurological patients, but may simplify some downstream consequences of their rehabilitation use.</p>
+<p><strong>Table 3. Acute beds: published versus recreated results for current admissions and no complex neurological patients</strong></p>
+<table>
+<thead>
+<tr>
+<th>Beds</th>
+<th style="text-align:right">Published current p(delay)</th>
+<th style="text-align:right">Recreated current p(delay)</th>
+<th style="text-align:right">Published no-complex p(delay)</th>
+<th style="text-align:right">Recreated no-complex p(delay)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10</td>
+<td style="text-align:right">0.14</td>
+<td style="text-align:right">0.14</td>
+<td style="text-align:right">0.09</td>
+<td style="text-align:right">0.09</td>
+</tr>
+<tr>
+<td>11</td>
+<td style="text-align:right">0.09</td>
+<td style="text-align:right">0.09</td>
+<td style="text-align:right">0.05</td>
+<td style="text-align:right">0.05</td>
+</tr>
+<tr>
+<td>12</td>
+<td style="text-align:right">0.06</td>
+<td style="text-align:right">0.06</td>
+<td style="text-align:right">0.03</td>
+<td style="text-align:right">0.03</td>
+</tr>
+<tr>
+<td>13</td>
+<td style="text-align:right">0.04</td>
+<td style="text-align:right">0.04</td>
+<td style="text-align:right">0.02</td>
+<td style="text-align:right">0.02</td>
+</tr>
+<tr>
+<td>14</td>
+<td style="text-align:right">0.02</td>
+<td style="text-align:right">0.02</td>
+<td style="text-align:right">0.01</td>
+<td style="text-align:right">0.01</td>
+</tr>
+<tr>
+<td>15</td>
+<td style="text-align:right">0.01</td>
+<td style="text-align:right">0.01</td>
+<td style="text-align:right">0.01</td>
+<td style="text-align:right">0.01</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4. Rehabilitation beds: published versus recreated results for current admissions and no complex neurological patients</strong></p>
+<table>
+<thead>
+<tr>
+<th>Beds</th>
+<th style="text-align:right">Published current p(delay)</th>
+<th style="text-align:right">Recreated current p(delay)</th>
+<th style="text-align:right">Published no-complex p(delay)</th>
+<th style="text-align:right">Recreated no-complex p(delay)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>12</td>
+<td style="text-align:right">0.11</td>
+<td style="text-align:right">0.11</td>
+<td style="text-align:right">0.03</td>
+<td style="text-align:right">0.05</td>
+</tr>
+<tr>
+<td>13</td>
+<td style="text-align:right">0.08</td>
+<td style="text-align:right">0.08</td>
+<td style="text-align:right">0.02</td>
+<td style="text-align:right">0.03</td>
+</tr>
+<tr>
+<td>14</td>
+<td style="text-align:right">0.05</td>
+<td style="text-align:right">0.05</td>
+<td style="text-align:right">0.01</td>
+<td style="text-align:right">0.02</td>
+</tr>
+<tr>
+<td>15</td>
+<td style="text-align:right">0.03</td>
+<td style="text-align:right">0.03</td>
+<td style="text-align:right">0.01</td>
+<td style="text-align:right">0.01</td>
+</tr>
+<tr>
+<td>16</td>
+<td style="text-align:right">0.02</td>
+<td style="text-align:right">0.02</td>
+<td style="text-align:right">0.00</td>
+<td style="text-align:right">0.00</td>
+</tr>
+</tbody>
+</table>
+<h3>Pooling of acute and rehabilitation beds</h3>
+<p>The pooled-bed scenarios reproduced the broad finding that complete pooling and additional beds reduce delay, although some partial-pooling rows differed more noticeably from the published table. This is consistent with the fact that pooled-bed results in the recreation were derived analytically from audited occupancy distributions rather than by reproducing the exact original implementation in SIMUL8.</p>
+<p><strong>Table 5. Pooling scenarios: published versus recreated <code>p(delay)</code></strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:right">Dedicated acute</th>
+<th style="text-align:right">Dedicated rehab</th>
+<th style="text-align:right">Pooled</th>
+<th style="text-align:right">Published acute</th>
+<th style="text-align:right">Recreated acute</th>
+<th style="text-align:right">Published rehab</th>
+<th style="text-align:right">Recreated rehab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right">0</td>
+<td style="text-align:right">0</td>
+<td style="text-align:right">22</td>
+<td style="text-align:right">0.057</td>
+<td style="text-align:right">0.068</td>
+<td style="text-align:right">0.057</td>
+<td style="text-align:right">0.068</td>
+</tr>
+<tr>
+<td style="text-align:right">0</td>
+<td style="text-align:right">0</td>
+<td style="text-align:right">26</td>
+<td style="text-align:right">0.016</td>
+<td style="text-align:right">0.018</td>
+<td style="text-align:right">0.016</td>
+<td style="text-align:right">0.018</td>
+</tr>
+<tr>
+<td style="text-align:right">14</td>
+<td style="text-align:right">12</td>
+<td style="text-align:right">0</td>
+<td style="text-align:right">0.020</td>
+<td style="text-align:right">0.021</td>
+<td style="text-align:right">0.117</td>
+<td style="text-align:right">0.109</td>
+</tr>
+<tr>
+<td style="text-align:right">11</td>
+<td style="text-align:right">11</td>
+<td style="text-align:right">4</td>
+<td style="text-align:right">0.031</td>
+<td style="text-align:right">0.048</td>
+<td style="text-align:right">0.077</td>
+<td style="text-align:right">0.091</td>
+</tr>
+<tr>
+<td style="text-align:right">11</td>
+<td style="text-align:right">10</td>
+<td style="text-align:right">5</td>
+<td style="text-align:right">0.027</td>
+<td style="text-align:right">0.041</td>
+<td style="text-align:right">0.080</td>
+<td style="text-align:right">0.092</td>
+</tr>
+<tr>
+<td style="text-align:right">10</td>
+<td style="text-align:right">10</td>
+<td style="text-align:right">6</td>
+<td style="text-align:right">0.033</td>
+<td style="text-align:right">0.045</td>
+<td style="text-align:right">0.057</td>
+<td style="text-align:right">0.066</td>
+</tr>
+<tr>
+<td style="text-align:right">10</td>
+<td style="text-align:right">9</td>
+<td style="text-align:right">7</td>
+<td style="text-align:right">0.030</td>
+<td style="text-align:right">0.042</td>
+<td style="text-align:right">0.060</td>
+<td style="text-align:right">0.067</td>
+</tr>
+<tr>
+<td style="text-align:right">9</td>
+<td style="text-align:right">9</td>
+<td style="text-align:right">8</td>
+<td style="text-align:right">0.035</td>
+<td style="text-align:right">0.045</td>
+<td style="text-align:right">0.049</td>
+<td style="text-align:right">0.054</td>
+</tr>
+<tr>
+<td style="text-align:right">9</td>
+<td style="text-align:right">8</td>
+<td style="text-align:right">9</td>
+<td style="text-align:right">0.034</td>
+<td style="text-align:right">0.044</td>
+<td style="text-align:right">0.051</td>
+<td style="text-align:right">0.054</td>
+</tr>
+</tbody>
+</table>
+<h3>Ring-fenced acute stroke beds</h3>
+<p>The ring-fenced stroke-bed scenario showed the largest divergence from the published results. In the recreation, ring-fencing was implemented by comparing delay against stroke-only occupancy within the acute unit. This produced a stronger reduction in delay than was reported by Monks et al. While the direction of effect was correct, the magnitude suggests that the recreated ring-fencing rule is likely more restrictive, or more idealised, than the mechanism used in the original model.</p>
+<p><strong>Table 6. Acute beds: published versus recreated results for current admissions and ring-fenced stroke beds</strong></p>
+<table>
+<thead>
+<tr>
+<th>Beds</th>
+<th style="text-align:right">Published current p(delay)</th>
+<th style="text-align:right">Recreated current p(delay)</th>
+<th style="text-align:right">Published ring-fenced p(delay)</th>
+<th style="text-align:right">Recreated ring-fenced p(delay)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10</td>
+<td style="text-align:right">0.14</td>
+<td style="text-align:right">0.14</td>
+<td style="text-align:right">0.08</td>
+<td style="text-align:right">0.04</td>
+</tr>
+<tr>
+<td>11</td>
+<td style="text-align:right">0.09</td>
+<td style="text-align:right">0.09</td>
+<td style="text-align:right">0.05</td>
+<td style="text-align:right">0.02</td>
+</tr>
+<tr>
+<td>12</td>
+<td style="text-align:right">0.06</td>
+<td style="text-align:right">0.06</td>
+<td style="text-align:right">0.03</td>
+<td style="text-align:right">0.01</td>
+</tr>
+<tr>
+<td>13</td>
+<td style="text-align:right">0.04</td>
+<td style="text-align:right">0.04</td>
+<td style="text-align:right">0.02</td>
+<td style="text-align:right">0.00</td>
+</tr>
+<tr>
+<td>14</td>
+<td style="text-align:right">0.02</td>
+<td style="text-align:right">0.02</td>
+<td style="text-align:right">0.01</td>
+<td style="text-align:right">0.00</td>
+</tr>
+<tr>
+<td>15</td>
+<td style="text-align:right">0.01</td>
+<td style="text-align:right">0.01</td>
+<td style="text-align:right">0.00</td>
+<td style="text-align:right">0.00</td>
+</tr>
+</tbody>
+</table>
+<p>Overall, the study provides evidence that a published healthcare DES can be recreated in Python and <code>SimPy</code> to a useful degree of fidelity using an iterative workflow. The strongest agreement was achieved in the core current-admissions and <code>5% more admissions</code> scenarios, while scenarios involving more policy interpretation, such as pooling and ring-fencing, showed larger but still interpretable deviations. Full figures, validation tables and scenario outputs are presented in the technical appendix notebook.</p>
+<h2>Discussion</h2>
+<p>[Placeholder: interpret the main findings in relation to the research question. Suggested points to address:</p>
+<ul>
+<li>To what extent was the Monks et al. model successfully recreated?</li>
+<li>Which aspects of the paper were reported well enough to support recreation?</li>
+<li>Which aspects of the paper were ambiguous or under-specified?</li>
+<li>How did the manual, Gemini, Claude and Codex workflows differ in practice?</li>
+<li>What types of prompts appeared most effective for DES recreation?</li>
+<li>Where did the recreated model diverge from the published model, and why?</li>
+<li>What are the main limitations of the current recreation?</li>
+<li>Use of agentic AI for complex tasks</li>
+<li>If the study were repeated, what would be done differently?]</li>
+</ul>
+<h2>Conclusions</h2>
+<p>[Placeholder: write a short concluding paragraph summarising:</p>
+<ul>
+<li>whether the recreation was successful</li>
+<li>whether iterative LLM-assisted design was useful</li>
+<li>what the study suggests about reproducibility of published DES models</li>
+<li>the main caution or limitation to retain in interpreting the results]</li>
+</ul>
+<h2>References</h2>
+<p>Acharya, D.B., Kuppan, K. and Divya, B. (2025) ‘Agentic AI: Autonomous intelligence for complex goals: A comprehensive survey’, <em>IEEE Access</em>, 13, pp. 18912-18936. Available at: https://doi.org/10.1109/ACCESS.2025.3532853</p>
+<p>Law, A.M. (2015) <em>Simulation modeling and analysis</em>. 5th edn. New York: McGraw-Hill Education.</p>
+<p>Matloff, N. (2008) <em>Introduction to discrete-event simulation and the SimPy language</em>. Davis, CA: University of California, Davis. Available at: https://heather.cs.ucdavis.edu/~matloff/156/PLN/DESimIntro.pdf</p>
+<p>Monks, T., Worthington, D., Allen, M., Pitt, M., Stein, K. and James, M.A. (2016) ‘A modelling tool for capacity planning in acute and community stroke services’, <em>BMC Health Services Research</em>, 16, p. 530. Available at: https://doi.org/10.1186/s12913-016-1789-4</p>

@@ -1,5 +1,5 @@
 ---
-layout: layout.html
+layout: redirect.html
 title: Discrete Event Simulation
 description: A recreation of a published simulation model using SimPy
 image: /assets/images/simulation.jpg

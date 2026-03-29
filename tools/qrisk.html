@@ -1,0 +1,194 @@
+---
+layout: layout.html
+title: Live QRISK3
+description: A dynamic QRISK3 tool that shows how estimated 10-year cardiovascular risk changes as parameters are adjusted.
+image: /assets/images/heart.svg
+date: 2026-03-29
+---
+
+<h2>Live QRISK3</h2>
+
+<p class="qrisk-lede">
+  Explore estimated 10-year cardiovascular risk using the QRISK3 variables. This is a dynamic tool:
+  the score updates live as you adjust any parameter, making it easy to see how risk changes with
+  age, blood pressure, smoking status, and other clinical factors.
+</p>
+
+<div class="qrisk-shell">
+  <section class="qrisk-card">
+    <div class="qrisk-actions" style="margin-bottom: 1rem;">
+      <button type="button" class="secondary-button" data-preset="male" form="qrisk-form">Load Male Example</button>
+      <button type="button" class="secondary-button" data-preset="female" form="qrisk-form">Load Female Example</button>
+    </div>
+
+    <form id="qrisk-form">
+      <div class="qrisk-grid">
+        <div class="qrisk-field">
+          <label for="sex">Sex</label>
+          <select id="sex" name="sex">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+
+        <div class="qrisk-field">
+          <label for="age">Age</label>
+          <input id="age" name="age" type="number" min="25" max="84" step="1" required>
+          <small>QRISK3 is validated for ages 25 to 84.</small>
+        </div>
+
+        <div class="qrisk-field">
+          <label for="bmi">BMI</label>
+          <input id="bmi" name="bmi" type="number" min="0.1" step="0.1" required>
+        </div>
+
+        <div class="qrisk-field">
+          <label for="ethnicity">Ethnicity</label>
+          <select id="ethnicity" name="ethnicity">
+            <option value="0">0 - White or not stated</option>
+            <option value="1">1 - White</option>
+            <option value="2">2 - Indian</option>
+            <option value="3">3 - Pakistani</option>
+            <option value="4">4 - Bangladeshi</option>
+            <option value="5">5 - Other Asian</option>
+            <option value="6">6 - Black Caribbean</option>
+            <option value="7">7 - Black African</option>
+            <option value="8">8 - Chinese</option>
+            <option value="9">9 - Other ethnic group</option>
+          </select>
+        </div>
+
+        <div class="qrisk-field">
+          <label for="cholesterol_hdl_ratio">Cholesterol / HDL Ratio</label>
+          <input id="cholesterol_hdl_ratio" name="cholesterol_hdl_ratio" type="number" min="0.1" step="0.1" required>
+        </div>
+
+        <div class="qrisk-field">
+          <label for="systolic_blood_pressure">Systolic Blood Pressure</label>
+          <input id="systolic_blood_pressure" name="systolic_blood_pressure" type="number" min="1" step="1" required>
+        </div>
+
+        <div class="qrisk-field">
+          <div class="qrisk-label-row">
+            <label for="systolic_blood_pressure_std_dev">Systolic BP Standard Deviation</label>
+            <span class="qrisk-info-wrap">
+              <button type="button" class="qrisk-info-button" data-info-target="sbp-sd-info" aria-label="More information about systolic blood pressure standard deviation">❓</button>
+              <span id="sbp-sd-info" class="qrisk-popover" hidden>
+                This is the standard deviation of repeated systolic blood pressure measurements. If you only have a single reading or no variability estimate, leave this as 0.
+              </span>
+            </span>
+          </div>
+          <input id="systolic_blood_pressure_std_dev" name="systolic_blood_pressure_std_dev" type="number" min="0" step="0.1" required>
+        </div>
+
+        <div class="qrisk-field">
+          <label for="smoking_status">Smoking Status</label>
+          <select id="smoking_status" name="smoking_status">
+            <option value="0">0 - Non-smoker</option>
+            <option value="1">1 - Former smoker</option>
+            <option value="2">2 - Light smoker</option>
+            <option value="3">3 - Moderate smoker</option>
+            <option value="4">4 - Heavy smoker</option>
+          </select>
+        </div>
+
+        <div class="qrisk-field">
+          <div class="qrisk-label-row">
+            <label for="townsend_score">Townsend Score</label>
+            <span class="qrisk-info-wrap">
+              <button type="button" class="qrisk-info-button" data-info-target="townsend-info" aria-label="More information about Townsend score">❓</button>
+              <span id="townsend-info" class="qrisk-popover" hidden>
+                Townsend score is a measure of material deprivation. Higher values indicate greater deprivation. If you do not have a Townsend value for the person, use 0 as a neutral baseline.
+              </span>
+            </span>
+          </div>
+          <input id="townsend_score" name="townsend_score" type="number" step="0.1" required>
+          <small>Use 0 if you do not have a Townsend deprivation value.</small>
+        </div>
+      </div>
+
+      <h3 class="qrisk-section-title">Clinical Flags</h3>
+      <div class="qrisk-flags">
+        <label><input type="checkbox" name="atrial_fibrillation">Atrial fibrillation</label>
+        <label><input type="checkbox" name="on_atypical_antipsychotics">Atypical antipsychotics</label>
+        <label><input type="checkbox" name="on_regular_steroids">Regular steroid tablets</label>
+        <label data-male-only><input type="checkbox" name="erectile_dysfunction_or_treatment">Erectile dysfunction or treatment</label>
+        <label><input type="checkbox" name="migraine">Migraine</label>
+        <label><input type="checkbox" name="rheumatoid_arthritis">Rheumatoid arthritis</label>
+        <label><input type="checkbox" name="chronic_kidney_disease_stage_3_to_5">CKD stage 3 to 5</label>
+        <div class="qrisk-flag-item">
+          <label><input type="checkbox" name="severe_mental_illness">Severe mental illness</label>
+          <span class="qrisk-info-wrap">
+            <button type="button" class="qrisk-info-button" data-info-target="smi-info" aria-label="More information about severe mental illness">❓</button>
+            <span id="smi-info" class="qrisk-popover" hidden>
+              QRISK3 defines severe mental illness as psychosis, schizophrenia, or bipolar affective disease.
+            </span>
+          </span>
+        </div>
+        <label><input type="checkbox" name="systemic_lupus_erythematosus">Systemic lupus erythematosus</label>
+        <label><input type="checkbox" name="blood_pressure_treatment">Blood pressure treatment</label>
+        <label><input type="checkbox" name="diabetes_type_1">Diabetes type 1</label>
+        <label><input type="checkbox" name="diabetes_type_2">Diabetes type 2</label>
+        <div class="qrisk-flag-item">
+          <label><input type="checkbox" name="family_history_cvd">Family history of CVD</label>
+          <span class="qrisk-info-wrap">
+            <button type="button" class="qrisk-info-button" data-info-target="fh-cvd-info" aria-label="More information about family history of cardiovascular disease">❓</button>
+            <span id="fh-cvd-info" class="qrisk-popover" hidden>
+              This means a first-degree relative with angina or heart attack before age 60.
+            </span>
+          </span>
+        </div>
+      </div>
+
+      <div class="qrisk-actions">
+        <button type="reset" class="secondary-button">Reset</button>
+      </div>
+    </form>
+  </section>
+
+  <aside class="qrisk-card">
+    <div id="qrisk-status" class="qrisk-status">Ready</div>
+    <div class="qrisk-score" id="qrisk-score">--</div>
+    <div id="qrisk-summary" class="qrisk-summary">Enter the patient details and calculate the score.</div>
+
+    <hr>
+
+    <h3>Technical Payload Preview</h3>
+    <p class="qrisk-muted">
+      This payload is the exact JavaScript data object the calculator uses internally. It is shown so
+      you can see the values that would be sent to an API later if this tool is connected to a backend.
+    </p>
+    <pre id="qrisk-payload" class="qrisk-payload">{}</pre>
+
+    <p class="qrisk-muted">
+      This implementation should be checked against the original QRISK3 source and
+      <a href="https://qrisk.org" target="_blank" rel="noreferrer">qrisk.org</a> before patient-facing use.
+      Inaccurate implementations can lead to wrong patients being given the wrong treatment.
+    </p>
+  </aside>
+</div>
+
+<br>
+<img src="/assets/images/heart.svg" alt="Healthy heart" width="180">
+
+<div class="qrisk-card" style="margin-top: 1.5rem; text-align: left;">
+  <h3>About QRISK3</h3>
+  <p>
+    QRISK3 estimates 10-year cardiovascular risk using demographic, biometric, and clinical inputs.
+    It is intended for adults without established cardiovascular disease and is commonly used to support
+    prevention discussions alongside clinical judgement.
+  </p>
+
+  <h3>Privacy</h3>
+  <p>
+    This page does not store submitted values.
+  </p>
+
+  <h3>Reference</h3>
+  <p>
+    Hippisley-Cox J, Coupland C, Brindle P. Development and validation of QRISK3 risk prediction algorithms
+    to estimate future risk of cardiovascular disease. <em>BMJ</em>. 2017;357:j2099.
+  </p>
+</div>
+
+<script src="/assets/js/qrisk3.js"></script>

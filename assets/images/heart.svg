@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 220" role="img" aria-labelledby="title desc">
+  <title id="title">Healthy heart</title>
+  <desc id="desc">A stylised red heart with a white pulse line.</desc>
+  <defs>
+    <linearGradient id="heart-fill" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff8a8a" />
+      <stop offset="100%" stop-color="#c62828" />
+    </linearGradient>
+  </defs>
+  <path
+    d="M120 198c-8-6-16-13-25-21C52 142 24 114 24 74c0-28 19-50 46-50c19 0 33 10 42 24c9-14 23-24 42-24c27 0 46 22 46 50c0 40-28 68-71 103c-9 8-17 15-25 21h16Z"
+    fill="url(#heart-fill)"
+    stroke="#8b1e1e"
+    stroke-width="6"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M68 104h24l10-22l19 47l14-25h37"
+    fill="none"
+    stroke="#fff5f5"
+    stroke-width="8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

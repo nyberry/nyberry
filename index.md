@@ -9,7 +9,7 @@ title: nyberry
 
 Welcome to my site. 
 
-Hope you find something useful.
+Hope you find something interesting, useful, maybe both.
 <br><br>
 
 <div id="contents" class="grid">
@@ -41,7 +41,7 @@ Hope you find something useful.
 <div style="font-size: 0.8rem; color: #555; margin-top: 1rem;">
   <h3 style="margin-bottom: 0.5rem;">Disclaimer</h3>
   <p>
-    This site is intended as a light quick reference tool and should not be relied upon as a sole source of information for clinical decision-making. Errors or omissions may occur. Users must verify all information against authoritative sources such as national guidelines or clinical protocols. The responsibility for safe clinical use remains entirely with the clinician.
+    This site is intended as a light reference tool and should not be relied upon as a sole source of information for clinical decision-making. There may be errors. Clinical users must verify all information against authoritative sources such as national guidelines or clinical protocols, and are responsibile for safe use.
   </p>
   <p style="margin-top: 1rem;">&copy; 2026 NYB Medical Limited</p>
 </div>

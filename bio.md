@@ -1,6 +1,6 @@
 ---
 layout: layout.html
-title: Dr Nick Berry
+title: Bio
 ---
 
 <br><br>
@@ -10,11 +10,9 @@ title: Dr Nick Berry
 
 I'm a doctor in Dorset, UK.
 
-I specialise in Family Medicine and have Postgraduate qualifications in Sports and Exercise Medicine and in Medical Education, and work as a GP Trainer, mentoring Resident Doctors as they specialise in Family Medicine.
+I am interested in the application of AI technologies in primary care, and am studying for a masters degree in Data Science for Healthcare at Exeter University.
 
-I am interested in the application of AI technologies in primary care, and am studying for a masters degree in Data Science for Healthcare at Exeter University. I also work as a medical examiner for the US Department for Veterans Affairs.
-
-General Medical Council Registration Number: 4428280
+This website shares some of the things that I am finding interesting- hope you enjoy them.
 
 <div class="icons">
     <a href="https://www.linkedin.com/in/nick-berry-767329232/" aria-label="LinkedIn">

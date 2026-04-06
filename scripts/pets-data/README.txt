@@ -1,8 +1,8 @@
 Pet classifier data notes
 =========================
 
-The current pets model is a bootstrap model trained on synthetic cartoon cat and
-mouse faces, so the page works before we have a cleaned real dataset.
+The current pets model is a bootstrap model trained on synthetic full-body cartoon
+cat and mouse drawings, so the page works before we have a cleaned real dataset.
 
 When we are ready to replace that with real web-scraped line drawings, the
 trainer can also read:

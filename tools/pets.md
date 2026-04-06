@@ -9,7 +9,7 @@ date: 2026-04-06
 <h2>Milo or Tao?</h2>
 
 <p>
-  Draw a simple cartoon <strong>cat</strong> or <strong>degu</strong> on the grid below.
+  Draw a <strong>cat</strong> or <strong>degu</strong> on the grid below.
 </p>
 
 <div class="shape-tool">
@@ -17,7 +17,7 @@ date: 2026-04-06
     <div class="shape-toolbar" role="toolbar" aria-label="Drawing controls">
       <label class="shape-brush">
         Brush
-        <input id="shape-brush-size" type="range" min="1" max="3" value="1">
+        <input id="shape-brush-size" type="range" min="1" max="3" value="2">
       </label>
       <button type="button" id="shape-clear-btn">Clear</button>
     </div>
@@ -55,7 +55,7 @@ date: 2026-04-06
 
 This uses the same browser-only UI as the shapes tool, but with two animal classes instead of geometric shapes.
 
-The current model is a bootstrap model trained on simple synthetic cartoon cat and degu faces.
+The current model is a bootstrap model trained on simple synthetic full-body cartoon cats and mouse-like degus.
 
 <style>
   .shape-tool {

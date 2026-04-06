@@ -1,24 +1,83 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import zlib from "node:zlib";
 import { fileURLToPath } from "node:url";
 
 const GRID_SIZE = 40;
 const CELL_COUNT = GRID_SIZE * GRID_SIZE;
-const LABELS = ["cat", "mouse"];
-const TRAIN_SAMPLES_PER_CLASS = 1200;
-const VALIDATION_SAMPLES_PER_CLASS = 240;
-const HIDDEN_LAYER_SIZES = [64, 32];
-const EPOCHS = 60;
-const INITIAL_LEARNING_RATE = 0.018;
-const WEIGHT_DECAY = 0.00015;
-const SEED = 20260406;
+const SCALE = GRID_SIZE / 26;
+const TILE_SIZE = 110;
+const COLUMNS = 5;
+const ROWS = 4;
+const WIDTH = COLUMNS * TILE_SIZE;
+const HEIGHT = ROWS * TILE_SIZE;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, "..");
-const outputPath = path.join(repoRoot, "assets", "data", "pets-classifier-model.json");
-const externalExamplesPath = path.join(repoRoot, "scripts", "pets-data", "examples.json");
-const SCALE = GRID_SIZE / 26;
+const outputPath = path.join(repoRoot, "assets", "images", "pets-training-examples.png");
+
+function crcTable() {
+  const table = new Uint32Array(256);
+
+  for (let index = 0; index < 256; index += 1) {
+    let c = index;
+
+    for (let bit = 0; bit < 8; bit += 1) {
+      c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    }
+
+    table[index] = c >>> 0;
+  }
+
+  return table;
+}
+
+const CRC_TABLE = crcTable();
+
+function crc32(buffer) {
+  let crc = 0xFFFFFFFF;
+
+  for (const byte of buffer) {
+    crc = CRC_TABLE[(crc ^ byte) & 0xFF] ^ (crc >>> 8);
+  }
+
+  return (crc ^ 0xFFFFFFFF) >>> 0;
+}
+
+function pngChunk(type, data) {
+  const typeBuffer = Buffer.from(type, "ascii");
+  const lengthBuffer = Buffer.alloc(4);
+  lengthBuffer.writeUInt32BE(data.length, 0);
+  const crcBuffer = Buffer.alloc(4);
+  crcBuffer.writeUInt32BE(crc32(Buffer.concat([typeBuffer, data])), 0);
+  return Buffer.concat([lengthBuffer, typeBuffer, data, crcBuffer]);
+}
+
+function setPixel(buffer, x, y, r, g, b, a = 255) {
+  if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT) {
+    return;
+  }
+
+  const index = ((y * WIDTH) + x) * 4;
+  buffer[index] = r;
+  buffer[index + 1] = g;
+  buffer[index + 2] = b;
+  buffer[index + 3] = a;
+}
+
+function fillRect(buffer, x, y, width, height, color) {
+  const startX = Math.max(0, Math.floor(x));
+  const startY = Math.max(0, Math.floor(y));
+  const endX = Math.min(WIDTH, Math.ceil(x + width));
+  const endY = Math.min(HEIGHT, Math.ceil(y + height));
+
+  for (let py = startY; py < endY; py += 1) {
+    for (let px = startX; px < endX; px += 1) {
+      setPixel(buffer, px, py, color[0], color[1], color[2], color[3] ?? 255);
+    }
+  }
+}
 
 function createRng(seed) {
   let value = seed >>> 0;
@@ -32,7 +91,7 @@ function createRng(seed) {
   };
 }
 
-const rng = createRng(SEED);
+const rng = createRng(20260406);
 
 function randomBetween(min, max) {
   return min + ((max - min) * rng());
@@ -309,302 +368,96 @@ function generateMouse() {
   return image;
 }
 
-function generateSyntheticSample(label) {
-  let image = label === "cat" ? generateCat() : generateMouse();
+function generateSample(label) {
+  const raw = label === "cat" ? generateCat() : generateMouse();
 
   if (rng() < 0.6) {
-    addPixelNoise(image);
+    addPixelNoise(raw);
   }
 
-  image = normalizeImage(image);
-  return image;
+  return normalizeImage(raw);
 }
 
-async function loadExternalExamples() {
-  try {
-    const raw = await fs.readFile(externalExamplesPath, "utf8");
-    const parsed = JSON.parse(raw);
+function crcPng(buffer) {
+  const rawRows = [];
 
-    if (!Array.isArray(parsed)) {
-      return null;
-    }
-
-    const examples = parsed
-      .filter((example) => LABELS.includes(example.label) && Array.isArray(example.pixels) && example.pixels.length === CELL_COUNT)
-      .map((example) => ({
-        label: LABELS.indexOf(example.label),
-        input: Float32Array.from(example.pixels.map((value) => value > 0.5 ? 1 : 0))
-      }));
-
-    return examples.length > 0 ? examples : null;
-  } catch {
-    return null;
-  }
-}
-
-function makeSyntheticDataset(samplesPerClass) {
-  const samples = [];
-
-  for (const label of LABELS) {
-    const labelIndex = LABELS.indexOf(label);
-
-    for (let count = 0; count < samplesPerClass; count += 1) {
-      samples.push({
-        label: labelIndex,
-        input: generateSyntheticSample(label)
-      });
-    }
+  for (let y = 0; y < HEIGHT; y += 1) {
+    const start = y * WIDTH * 4;
+    rawRows.push(Buffer.from([0]));
+    rawRows.push(buffer.subarray(start, start + WIDTH * 4));
   }
 
-  return samples;
-}
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(WIDTH, 0);
+  ihdr.writeUInt32BE(HEIGHT, 4);
+  ihdr[8] = 8;
+  ihdr[9] = 6;
+  ihdr[10] = 0;
+  ihdr[11] = 0;
+  ihdr[12] = 0;
 
-function shuffle(array) {
-  for (let index = array.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(rng() * (index + 1));
-    [array[index], array[swapIndex]] = [array[swapIndex], array[index]];
-  }
-}
-
-function splitExamples(examples) {
-  const copy = [...examples];
-  shuffle(copy);
-  const trainSize = Math.max(1, Math.floor(copy.length * 0.8));
-  return {
-    trainingSet: copy.slice(0, trainSize),
-    validationSet: copy.slice(trainSize)
-  };
-}
-
-function softmax(logits) {
-  const maxLogit = Math.max(...logits);
-  const exponentials = logits.map((value) => Math.exp(value - maxLogit));
-  const total = exponentials.reduce((sum, value) => sum + value, 0);
-  return exponentials.map((value) => value / total);
-}
-
-function relu(value) {
-  return value > 0 ? value : 0;
-}
-
-function createLayer(inputSize, outputSize, activation) {
-  const weights = new Float32Array(inputSize * outputSize);
-  const biases = new Float32Array(outputSize);
-  const scale = Math.sqrt(2 / inputSize);
-
-  for (let index = 0; index < weights.length; index += 1) {
-    weights[index] = (rng() * 2 - 1) * scale;
-  }
-
-  return { inputSize, outputSize, activation, weights, biases };
-}
-
-function createNetwork() {
-  const sizes = [CELL_COUNT, ...HIDDEN_LAYER_SIZES, LABELS.length];
-  const layers = [];
-
-  for (let index = 0; index < sizes.length - 1; index += 1) {
-    layers.push(
-      createLayer(
-        sizes[index],
-        sizes[index + 1],
-        index === sizes.length - 2 ? "linear" : "relu"
-      )
-    );
-  }
-
-  return layers;
-}
-
-function forwardPass(layers, input) {
-  const activations = [input];
-  const preActivations = [];
-  let current = input;
-
-  for (const layer of layers) {
-    const output = new Float32Array(layer.outputSize);
-
-    for (let outputIndex = 0; outputIndex < layer.outputSize; outputIndex += 1) {
-      let value = layer.biases[outputIndex];
-      const rowOffset = outputIndex * layer.inputSize;
-
-      for (let inputIndex = 0; inputIndex < layer.inputSize; inputIndex += 1) {
-        value += layer.weights[rowOffset + inputIndex] * current[inputIndex];
-      }
-
-      output[outputIndex] = value;
-    }
-
-    preActivations.push(output);
-
-    if (layer.activation === "relu") {
-      const activated = new Float32Array(layer.outputSize);
-
-      for (let index = 0; index < layer.outputSize; index += 1) {
-        activated[index] = relu(output[index]);
-      }
-
-      activations.push(activated);
-      current = activated;
-    } else {
-      activations.push(output);
-      current = output;
-    }
-  }
-
-  return { activations, preActivations, logits: current };
-}
-
-function predictIndex(layers, input) {
-  const { logits } = forwardPass(layers, input);
-  let bestIndex = 0;
-  let bestValue = logits[0];
-
-  for (let index = 1; index < logits.length; index += 1) {
-    if (logits[index] > bestValue) {
-      bestValue = logits[index];
-      bestIndex = index;
-    }
-  }
-
-  return bestIndex;
-}
-
-function evaluate(dataset, layers) {
-  let correct = 0;
-
-  for (const sample of dataset) {
-    if (predictIndex(layers, sample.input) === sample.label) {
-      correct += 1;
-    }
-  }
-
-  return correct / dataset.length;
-}
-
-function backpropagate(layers, sample, learningRate) {
-  const { activations, preActivations, logits } = forwardPass(layers, sample.input);
-  const probabilities = softmax(Array.from(logits));
-  const deltas = new Array(layers.length);
-  const outputDelta = new Float32Array(probabilities.length);
-
-  for (let index = 0; index < probabilities.length; index += 1) {
-    outputDelta[index] = probabilities[index] - (index === sample.label ? 1 : 0);
-  }
-
-  deltas[deltas.length - 1] = outputDelta;
-
-  for (let layerIndex = layers.length - 1; layerIndex >= 0; layerIndex -= 1) {
-    const layer = layers[layerIndex];
-    const delta = deltas[layerIndex];
-    const previousActivation = activations[layerIndex];
-
-    if (layerIndex > 0) {
-      const previousDelta = new Float32Array(layer.inputSize);
-      const previousPreActivation = preActivations[layerIndex - 1];
-
-      for (let inputIndex = 0; inputIndex < layer.inputSize; inputIndex += 1) {
-        let total = 0;
-
-        for (let outputIndex = 0; outputIndex < layer.outputSize; outputIndex += 1) {
-          total += layer.weights[(outputIndex * layer.inputSize) + inputIndex] * delta[outputIndex];
-        }
-
-        previousDelta[inputIndex] = previousPreActivation[inputIndex] > 0 ? total : 0;
-      }
-
-      deltas[layerIndex - 1] = previousDelta;
-    }
-
-    for (let outputIndex = 0; outputIndex < layer.outputSize; outputIndex += 1) {
-      const deltaValue = delta[outputIndex];
-      const rowOffset = outputIndex * layer.inputSize;
-
-      layer.biases[outputIndex] -= learningRate * deltaValue;
-
-      for (let inputIndex = 0; inputIndex < layer.inputSize; inputIndex += 1) {
-        const weightIndex = rowOffset + inputIndex;
-        const gradient = (deltaValue * previousActivation[inputIndex]) + (WEIGHT_DECAY * layer.weights[weightIndex]);
-        layer.weights[weightIndex] -= learningRate * gradient;
-      }
-    }
-  }
-}
-
-function trainModel(trainingSet, validationSet) {
-  const layers = createNetwork();
-
-  for (let epoch = 0; epoch < EPOCHS; epoch += 1) {
-    const learningRate = INITIAL_LEARNING_RATE / (1 + (epoch * 0.05));
-    shuffle(trainingSet);
-
-    for (const sample of trainingSet) {
-      backpropagate(layers, sample, learningRate);
-    }
-
-    if ((epoch + 1) % 10 === 0 || epoch === EPOCHS - 1) {
-      const trainingAccuracy = evaluate(trainingSet, layers);
-      const validationAccuracy = evaluate(validationSet, layers);
-      console.log(
-        `epoch ${String(epoch + 1).padStart(2, "0")}/${EPOCHS}  train=${(trainingAccuracy * 100).toFixed(1)}%  val=${(validationAccuracy * 100).toFixed(1)}%`
-      );
-    }
-  }
-
-  return layers;
-}
-
-function serializeLayers(layers) {
-  return layers.map((layer) => ({
-    inputSize: layer.inputSize,
-    outputSize: layer.outputSize,
-    activation: layer.activation,
-    weights: Array.from(layer.weights, (value) => Number(value.toFixed(6))),
-    biases: Array.from(layer.biases, (value) => Number(value.toFixed(6)))
-  }));
+  return Buffer.concat([
+    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+    pngChunk("IHDR", ihdr),
+    pngChunk("IDAT", zlib.deflateSync(Buffer.concat(rawRows))),
+    pngChunk("IEND", Buffer.alloc(0))
+  ]);
 }
 
 async function main() {
-  const externalExamples = await loadExternalExamples();
-  let trainingSet;
-  let validationSet;
-  let datasetSource;
+  const pixels = Buffer.alloc(WIDTH * HEIGHT * 4);
 
-  if (externalExamples && externalExamples.length >= 20) {
-    ({ trainingSet, validationSet } = splitExamples(externalExamples));
-    datasetSource = `external examples from ${path.relative(repoRoot, externalExamplesPath)}`;
-  } else {
-    trainingSet = makeSyntheticDataset(TRAIN_SAMPLES_PER_CLASS);
-    validationSet = makeSyntheticDataset(VALIDATION_SAMPLES_PER_CLASS);
-    datasetSource = "synthetic full-body cartoon cat and mouse drawings";
+  for (let y = 0; y < HEIGHT; y += 1) {
+    for (let x = 0; x < WIDTH; x += 1) {
+      setPixel(pixels, x, y, 250, 247, 241, 255);
+    }
   }
 
-  console.log(`Training source: ${datasetSource}`);
-  console.log(`Training samples: ${trainingSet.length}`);
-  console.log(`Validation samples: ${validationSet.length}`);
-  console.log(`Training MLP with hidden layers ${HIDDEN_LAYER_SIZES.join(" -> ")}...`);
+  const examples = [];
 
-  const layers = trainModel(trainingSet, validationSet);
-  const validationAccuracy = evaluate(validationSet, layers);
+  for (let index = 0; index < 10; index += 1) {
+    examples.push({ label: "cat", pixels: generateSample("cat") });
+  }
 
-  const model = {
-    type: "mlp",
-    labels: LABELS,
-    gridSize: GRID_SIZE,
-    hiddenLayerSizes: HIDDEN_LAYER_SIZES,
-    validationAccuracy,
-    trainingSamples: trainingSet.length,
-    validationSamples: validationSet.length,
-    datasetSource,
-    seed: SEED,
-    layers: serializeLayers(layers)
-  };
+  for (let index = 0; index < 10; index += 1) {
+    examples.push({ label: "mouse", pixels: generateSample("mouse") });
+  }
 
-  await fs.mkdir(path.dirname(outputPath), { recursive: true });
-  await fs.writeFile(outputPath, `${JSON.stringify(model, null, 2)}\n`);
+  for (let index = 0; index < examples.length; index += 1) {
+    const col = index % COLUMNS;
+    const row = Math.floor(index / COLUMNS);
+    const tileX = col * TILE_SIZE;
+    const tileY = row * TILE_SIZE;
 
-  console.log(`Saved model to ${outputPath}`);
-  console.log(`Final validation accuracy: ${(validationAccuracy * 100).toFixed(1)}%`);
+    fillRect(pixels, tileX, tileY, TILE_SIZE, TILE_SIZE, [255, 253, 248, 255]);
+    fillRect(pixels, tileX, tileY, TILE_SIZE, 2, [218, 211, 200, 255]);
+    fillRect(pixels, tileX, tileY + TILE_SIZE - 2, TILE_SIZE, 2, [218, 211, 200, 255]);
+    fillRect(pixels, tileX, tileY, 2, TILE_SIZE, [218, 211, 200, 255]);
+    fillRect(pixels, tileX + TILE_SIZE - 2, tileY, 2, TILE_SIZE, [218, 211, 200, 255]);
+
+    const margin = 12;
+    const pixelSize = (TILE_SIZE - (margin * 2)) / GRID_SIZE;
+
+    for (let y = 0; y < GRID_SIZE; y += 1) {
+      for (let x = 0; x < GRID_SIZE; x += 1) {
+        if (examples[index].pixels[imageIndex(x, y)] <= 0.5) {
+          continue;
+        }
+
+        fillRect(
+          pixels,
+          tileX + margin + (x * pixelSize),
+          tileY + margin + (y * pixelSize),
+          Math.ceil(pixelSize),
+          Math.ceil(pixelSize),
+          [35, 33, 29, 255]
+        );
+      }
+    }
+  }
+
+  await fs.writeFile(outputPath, crcPng(pixels));
+  console.log(`Wrote ${outputPath}`);
 }
 
 main().catch((error) => {

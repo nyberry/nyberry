@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Shape Classifier</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+
+<body class="">
+
+  <nav>
+    <div class="menu"><a href="/index" aria-label="Home">
+      <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512">
+        <path fill="currentColor" d="M541 229.16L327.41 43a35.84 35.84 0 0 0-46.8 0L35 229.16a16 16 0 0 0-1.16 22.59l21.41 23.57a16 16 0 0 0 22.59 1.16L96 240.81V464a16 16 0 0 0 16 16h112a16 16 0 0 0 16-16V352h96v112a16 16 0 0 0 16 16h112a16 16 0 0 0 16-16V240.81l18.16 15.67a16 16 0 0 0 22.59-1.16l21.41-23.57a16 16 0 0 0-1.16-22.59z"/>
+      </svg>
+    </a></div>
+    <ul class="menu">
+      <li><a href="/bio">Bio</a></li>
+      <li><a href="/blog/">Blog</a></li>
+      <li><a href="/clini">Clini</a></li>
+
+      <!-- 
+      <li class="dropdown">
+        <a href="#">Stuff ▾</a>
+        <ul class="dropdown-content">
+          <li><a href="/games/sumfing/sumfing">Sumfing</a></li>  
+        </ul>
+      </li>
+    -->
+
+      <li class="dropdown">
+        <a href="#">Tools ▾</a>
+        <ul class="dropdown-content">
+          <li><a href="/tools/bmi">BMI</a></li>  
+          <li><a href="/tools/colorblind">Colour Vision Test</a></li>
+          <li><a href="/tools/neuro">Dermatomes</a></li>
+          <li><a href="/tools/growth">Growth Charts</a></li>
+          <li><a href="/tools/icd10">ICD-10 Lookup</a></li>
+          <li><a href="/tools/gfr">Kidney Calculator</a></li>
+          <li><a href="/tools/labconverter">Lab Unit Converter</a></li>
+          <li><a href="/tools/paedsdoses">Paeds Doses</a></li>
+          <li><a href="/tools/qrisk">Live QRISK3</a></li>
+          <li><a href="/tools/shapes">Shape Classifier</a></li>
+          <li><a href="/tools/snellen">Visual Acuity</a></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+
+  <main class="main-container">
+      
+      <h2>Shape Classifier</h2>
+<p>
+  Draw a rough shape on the 26 x 26 grid below and the browser will classify it as a
+  <strong>triangle</strong>, <strong>circle</strong>, or <strong>square</strong>.
+  The model is trained on synthetic examples and runs entirely in JavaScript.
+</p>
+<div class="shape-tool">
+  <section class="shape-panel">
+    <div class="shape-toolbar" role="toolbar" aria-label="Drawing controls">
+      <button type="button" class="shape-mode-btn active" data-mode="draw">Draw</button>
+      <button type="button" class="shape-mode-btn" data-mode="erase">Erase</button>
+      <label class="shape-brush">
+        Brush
+        <input id="shape-brush-size" type="range" min="1" max="3" value="2">
+      </label>
+    </div>
+<p><canvas
+      id="shape-grid"
+      class="shape-canvas"
+      width="26"
+      height="26"
+      aria-label="26 by 26 pixel drawing grid"
+    ></canvas></p>
+<p><div class="shape-actions">
+<button type="button" id="shape-classify-btn">Classify drawing</button>
+<button type="button" id="shape-clear-btn">Clear</button>
+</div></p>
+<p><div class="shape-actions">
+<button type="button" class="shape-stamp-btn" data-shape="circle">Stamp circle</button>
+<button type="button" class="shape-stamp-btn" data-shape="square">Stamp square</button>
+<button type="button" class="shape-stamp-btn" data-shape="triangle">Stamp triangle</button>
+</div></p>
+  </section>
+  <section class="shape-panel">
+    <h3>Prediction</h3>
+    <p id="shape-status" class="shape-status">Loading model...</p>
+    <p id="shape-prediction" class="shape-prediction">Waiting for a drawing.</p>
+<p><ul id="shape-probabilities" class="shape-probabilities"></ul></p>
+<p><h3>Normalized Preview</h3>
+<canvas
+      id="shape-preview"
+      class="shape-preview"
+      width="26"
+      height="26"
+      aria-label="Normalized preview of the drawing"
+    ></canvas>
+<p class="footnote">
+Before classifying, the script crops the shape, rescales it, and centers it to make rough sketches more forgiving.
+</p></p>
+  </section>
+</div>
+<hr>
+<h3>How this works</h3>
+<p>This is a deliberately tiny toy model: a multilayer perceptron with hidden layers, trained on procedurally generated triangles, circles, and squares.</p>
+<p>That means it is fully client-side, easy to inspect, and fast to run.</p>
+<p>It also means it can still be fooled by very unusual doodles, partial shapes, or heavy scribbling.</p>
+<style>
+  .shape-tool {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    margin: 1.5rem 0;
+  }
+
+  .shape-panel {
+    background: #f7f7f5;
+    border: 1px solid #ddd;
+    border-radius: 16px;
+    padding: 1rem;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.06);
+  }
+
+  .shape-toolbar,
+  .shape-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .shape-brush {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+  }
+
+  .shape-canvas,
+  .shape-preview {
+    width: min(100%, 320px);
+    aspect-ratio: 1;
+    display: block;
+    margin: 0 auto 1rem;
+    border-radius: 12px;
+    border: 1px solid #d4d0c8;
+    background: #fffdf8;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    touch-action: none;
+  }
+
+  .shape-preview {
+    width: min(100%, 180px);
+    margin-bottom: 0.5rem;
+  }
+
+  .shape-mode-btn.active {
+    background: #1f5f46;
+    color: #fff;
+  }
+
+  .shape-status,
+  .shape-prediction {
+    min-height: 1.5rem;
+  }
+
+  .shape-prediction {
+    font-size: 1.15rem;
+    font-weight: 600;
+  }
+
+  .shape-probabilities {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.25rem;
+  }
+
+  .shape-probabilities li {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #e5e0d6;
+    padding: 0.4rem 0;
+    gap: 1rem;
+  }
+
+  @media (max-width: 640px) {
+    .shape-toolbar,
+    .shape-actions {
+      gap: 0.5rem;
+    }
+
+    .shape-panel {
+      padding: 0.9rem;
+    }
+  }
+</style>
+<script type="module" src="/assets/js/shapes-tool.js"></script>
+
+    
+
+  
+  </main>
+</body>
+</html>

@@ -1,7 +1,7 @@
 ---
 layout: layout.html
-title: Pet Classifier
-description: Draw a cat or a degu and let a tiny browser neural net classify it as Milo or Tao.
+title: Classifier part 2
+description: Draw a cat or a degu and let a neural net classify it.
 image: /assets/images/catordegu.jpg
 date: 2026-04-06
 ---

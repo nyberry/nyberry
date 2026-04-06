@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Shape Classifier</title>
+  <title>Classifier part 1</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/assets/css/styles.css">
 </head>
@@ -101,141 +101,89 @@
   </section>
 </div>
 <hr>
-<h3>How this works</h3>
-<p>This is a tiny toy model: a multilayer perceptron with hidden layers, trained on procedurally generated triangles, circles, and squares.</p>
-<p>It is fully client-side, easy to inspect, and fast to run.</p>
-<h3>What the model is trying to do</h3>
-<p>At heart, this tool is solving a very simple image-recognition problem.</p>
-<p>The input is a tiny black-and-white image with <code>26 x 26 = 676</code> pixels.
-Each pixel is either &quot;off&quot; (<code>0</code>) or &quot;on&quot; (<code>1</code>).</p>
+<h3>In an nutshell</h3>
+<p>This is a miniature image-classification system. It runs client-side in a browser.</p>
+<p>It is a multilayer perceptron with hidden layers, trained off-line on procedurally generated triangles, circles, and squares.</p>
+<h3>What it is trying to do</h3>
+<p>This tool is solving a very simple image-recognition problem.</p>
+<p>The input is a tiny black-and-white image with 26 x 26 = 676 pixels.
+Each pixel is either off (0) or on (1).</p>
 <p>The output is a set of three probabilities: circle, square, and triangle.</p>
-<p>So the task is:</p>
-<p>&quot;Given these 676 numbers, which of the three shapes is most likely?&quot;</p>
-<p>This is a miniature version of the same general idea used in larger image-classification systems.
-The difference is that here everything is deliberately small enough to inspect and understand.</p>
-<h3>What happens when you draw in the browser</h3>
-<p>When you draw on the large canvas, you are not painting a photograph.
-You are really switching cells on and off in a <code>26 x 26</code> grid.</p>
-<p>The browser script keeps an internal array of 676 numbers, updates it as you draw, redraws the visible grid, and creates a normalized version before classification.</p>
-<p>The visible drawing canvas is enlarged for comfort, but the underlying data stay at <code>26 x 26</code>.
-That is why the drawing looks blocky and pixelated: the model only sees a tiny image.</p>
-<h3>Why there is a &quot;normalized preview&quot;</h3>
+<p>The task is: &quot;Given these 676 0s and 1s, which of the three shapes is most likely?&quot;</p>
+<p>Although this is a simple task, the same general idea is used in larger image-classification systems, and that's why I thought it would be an interesting thing to build and share.</p>
+<h3>The input</h3>
+<p>When you draw on the canvas, you are switching cells on and off in a grid.</p>
+<p>The browser script keeps an internal array of all the 1s and 0s in the grid, and updates it as you draw.</p>
+<h3>Normalization</h3>
 <p>If two people draw the same shape, one may draw it in the top-left corner and one in the middle.
 One may draw it small and one large.</p>
 <p>If we fed those raw drawings straight into the network, the model would have to learn many extra variations of the same idea. It would need to recognize a circle on the left, a circle on the right, a large circle, and a small circle as separate-looking inputs.</p>
 <p>That makes the task much harder.</p>
-<p>So before classification, the script tries to standardize the drawing. It finds the smallest box containing the drawn pixels, crops to that box, rescales it so it fits neatly inside the <code>26 x 26</code> frame, and then recenters it.</p>
+<p>So before classification, the script tries to standardize the drawing. It finds the smallest box containing the drawn pixels, crops to that box, rescales it so it fits neatly inside a 26 x 26 frame, and then recenters it.</p>
 <p>This means the model spends less of its capacity learning &quot;where&quot; the shape is and more learning &quot;what&quot; the shape is.</p>
-<p>In plain language, the drawing canvas captures what you drew, while the normalized preview shows what the neural net actually sees.</p>
-<h3>How the synthetic training data were made</h3>
-<p>There is no hand-labelled patient-style dataset behind this.
-Instead, the training script creates large numbers of fake examples automatically.</p>
-<p>For each class, it generates many variants with different sizes, positions, rotations, stroke thicknesses, and a small amount of noise.</p>
-<p>So rather than drawing thousands of shapes by hand and labelling them one by one, the code says:</p>
-<p>&quot;Make me lots of plausible circles, lots of plausible squares, and lots of plausible triangles.&quot;</p>
-<p>This is what &quot;procedurally generated&quot; or &quot;synthetic&quot; data means here.</p>
-<p>That is useful because it is fast, cheap, and easy to scale. It also gives perfectly known labels, because the generator itself made the shape.</p>
-<p>The weakness is that synthetic data may be cleaner than human doodles.
-So the model may perform better on computer-generated examples than on messy real sketches.</p>
-<h3>How the shapes are drawn during training</h3>
-<p>The training script does not start from images.
-It starts from geometry.</p>
-<p>For example, a circle is made by choosing a centre point and radius, then turning on pixels near the circular edge. A square is made by choosing a centre, side length, and rotation, then turning on pixels near the four sides. A triangle is made by choosing three corners and turning on pixels near the three edges.</p>
-<p>After that, the generator may thicken the stroke slightly, add or remove a few pixels as noise, and shift the shape a little.</p>
-<p>Only then is the image normalized in the same style as the browser input.</p>
-<p>This is important.
-The model is trained not on ideal mathematical coordinates, but on little pixel images that resemble what the browser will later provide.</p>
-<h3>What the neural network actually is</h3>
-<p>The current model is a small multilayer perceptron, usually shortened to <strong>MLP</strong>.</p>
-<p>Its architecture has an input layer of <code>676</code> values, a first hidden layer of <code>64</code> neurons, a second hidden layer of <code>32</code> neurons, and an output layer of <code>3</code> neurons.</p>
-<p>You can think of each neuron as a small calculator.
-It takes in numbers, gives some of them more importance than others, adds them up, applies a rule, and passes the result on.</p>
+<p>The normalized preview shows what the neural net actually sees.</p>
+<h3>Synthetic training data</h3>
+<p>Off-line, a training script created 3,240 fake examples automatically.</p>
+<p>For each class of shape, it generated 1080 variants with different sizes, positions, rotations, stroke thicknesses, and a small amount of noise.</p>
+<p>This is &quot;procedurally generated&quot; or &quot;synthetic&quot; data. Doing things this way is useful because it is fast, easy to scale, and gives perfectly known labels.</p>
+<p>The weakness is that synthetic data may be cleaner than human doodles. So the model may perform better on computer-generated examples than on messy real sketches.</p>
+<h3>The neural network</h3>
+<p>The model is a small multilayer perceptron (<strong>MLP</strong>).</p>
+<p>Its architecture has an input layer of 676 values, a first hidden layer of 64 neurons, a second hidden layer of 32 neurons, and an output layer of 3 neurons.</p>
+<p>Each neuron takes in numbers, gives some of them more importance than others, adds them up, applies a rule, and passes the result on.</p>
 <p>So the model structure is:</p>
 <p><code>676 -&gt; 64 -&gt; 32 -&gt; 3</code></p>
 <p>The hidden layers let the model learn combinations of features, not just raw pixels.</p>
 <p>For example, a hidden neuron might become sensitive to curved pixels arranged in a loop, to three line segments meeting in corners, or to four edges with roughly right angles.</p>
-<p>These are not written into the code by hand.
-They are learned from the data during training.</p>
-<h3>What &quot;weights&quot; and &quot;biases&quot; mean</h3>
+<p>These are learned from the data during training.</p>
+<h3>Weights and biases</h3>
 <p>Each connection between neurons has a number attached to it called a <strong>weight</strong>.</p>
-<p>Very roughly, a positive weight means an input pushes the answer upward, a negative weight means it pushes the answer downward, and a larger absolute value means the input matters more.</p>
+<p>A positive weight means an input pushes the answer upward, a negative weight means it pushes the answer downward, and a larger absolute value means the input matters more.</p>
 <p>Each neuron also has a <strong>bias</strong>, which is like its starting offset before it looks at the input.</p>
 <p>So a neuron is doing something like:</p>
 <p>&quot;Start here, add up all the incoming signals with their weights, then decide how active to become.&quot;</p>
-<p>The whole business of training is basically the business of choosing these weights and biases well.</p>
-<h3>What happens in one forward pass</h3>
+<p>Training is basically the business of choosing these weights and biases well.</p>
+<h3>Feeding the input forward</h3>
 <p>Once a normalized image has been prepared, the browser runs a forward pass through the network.</p>
-<p>That means the 676 pixel values are fed into the first hidden layer, each hidden neuron computes a weighted sum plus a bias, and a ReLU activation is applied. Those outputs then become the input to the second hidden layer. The same thing happens again, and the final layer produces three raw scores, one for each class. A softmax step then turns those raw scores into probabilities that add up to 100%.</p>
-<p>Two terms here are worth unpacking:</p>
+<p>The 676 pixel values are fed into the first hidden layer, each hidden neuron computes a weighted sum plus a bias, and a <strong>ReLU</strong> activation is applied. Those outputs then become the input to the second hidden layer. The same thing happens again, and the final layer produces three raw scores, one for each class. A <strong>softmax</strong> step then turns those raw scores into probabilities that add up to 100%.</p>
 <p><strong>ReLU</strong></p>
 <p>This stands for &quot;rectified linear unit&quot;.
-It simply means that if a neuron’s value is below zero, it is set to zero, and if it is above zero, it is kept.</p>
+It means that if a neuron’s value is below zero, it is set to zero, and if it is above zero, it is kept.</p>
 <p>This makes the network nonlinear, which is one of the reasons it can learn more interesting patterns than a purely linear model.</p>
 <p><strong>Softmax</strong></p>
-<p>The output layer does not directly produce probabilities.
-It produces three scores.
-Softmax converts those into a probability-style distribution.</p>
+<p>The output layer does not directly produce probabilities. It produces three scores/ Softmax converts those into a probability-style distribution.</p>
 <p>So if the raw outputs were something like:</p>
 <p>circle <code>1.2</code>, square <code>0.3</code>, and triangle <code>2.7</code>,</p>
 <p>softmax turns them into something like:</p>
 <p>circle <code>0.17</code>, square <code>0.07</code>, and triangle <code>0.76</code>.</p>
 <p>The largest value becomes the model’s best guess.</p>
-<h3>How training works</h3>
+<h3>Training the model</h3>
 <p>Training means showing the model many examples where the correct answer is already known, then adjusting the weights and biases so the model improves.</p>
 <p>For each training image, the model makes a prediction, compares it with the true label, measures the mistake, pushes that error backward through the network, and nudges the weights and biases so the same mistake becomes less likely next time.</p>
 <p>That backward step is called <strong>backpropagation</strong>.</p>
-<p>You do not need the full calculus to understand the main idea.
-The important concept is:</p>
-<p>&quot;Which parameters most contributed to the mistake, and in which direction should they move?&quot;</p>
+<p>The main idea is to work out which parameters most contributed to the mistake, and in which direction they should move.</p>
 <p>This process is repeated over and over for many examples.</p>
-<p>An <strong>epoch</strong> means one full pass through the training set.
-The current script trains for multiple epochs, shuffling the examples between rounds so the model does not learn them in a fixed order.</p>
-<h3>What the learning rate does</h3>
+<p>An <strong>epoch</strong> means one full pass through the training set. The training script trains for 55 epochs, shuffling the examples between rounds so the model does not learn them in a fixed order.</p>
+<h3>The learning rate</h3>
 <p>The <strong>learning rate</strong> controls how big each correction step is.</p>
-<p>If it is too large, training can become unstable and the model can overshoot good settings. If it is too small, training can be very slow and the model may improve only a little at a time. So training is a balancing act: the steps must be large enough to learn, but small enough not to bounce around wildly.</p>
-<h3>What weight decay is</h3>
+<p>If it is too large, training can become unstable and the model can overshoot good settings. If it is too small, training can be very slow and the model may improve only a little at a time. The steps must be large enough to learn, but small enough not to bounce around wildly.</p>
+<h3>Weight decay</h3>
 <p>The training script also uses a small amount of <strong>weight decay</strong>.</p>
-<p>This gently discourages weights from becoming unnecessarily large.
-You can think of it as a mild penalty for overcomplicated solutions.</p>
-<p>Why do this?</p>
-<p>Because a model that memorizes the training data too aggressively may perform worse on new examples.
-Weight decay is one simple way of nudging the model toward smoother, more general patterns.</p>
-<h3>What validation accuracy means</h3>
-<p>After training, the script reports a <strong>validation accuracy</strong>.</p>
-<p>This means one set of synthetic examples is used for training, while a separate set is held back. The trained model is then tested on that held-back set.</p>
+<p>This gently discourages weights from becoming unnecessarily large. Amodel that memorizes the training data too aggressively may perform worse on new examples. Weight decay is one simple way of nudging the model toward smoother, more general patterns.</p>
+<h3>Validation accuracy</h3>
+<p>In training, one set of synthetic examples is used for training, while a separate set was held back. The trained model is then tested on that held-back set.</p>
 <p>If the model performs well there, that suggests it has learned something broader than just memorizing the training cases.</p>
-<p>However, there is an important caveat:</p>
-<p>The validation set is still synthetic.
-It is separate from training, but it comes from the same code generator.</p>
-<p>So a high validation score means:</p>
-<p>&quot;The model generalizes well to more fake shapes generated in the same style.&quot;</p>
-<p>It does <strong>not</strong> necessarily mean:</p>
-<p>&quot;The model will perform equally well on every human sketch.&quot;</p>
-<p>That is why a real test set of human doodles would be the next honest benchmark.</p>
-<h3>What happens when you press &quot;Classify drawing&quot;</h3>
+<p>A high validation score means that Tte model generalizes well to more shapes generated in the same style.</p>
+<p>It does not necessarily mean that it will generalise well to human generated shapes... you be the judge.</p>
+<p>The saved model's validation accuracy is 0.991</p>
+<h3>Classification</h3>
 <p>In the browser, the sequence is:</p>
-<p>Your current grid is normalized first. If there are too few active pixels, the script assumes nothing meaningful has been drawn. Otherwise, the normalized image is fed through the neural network, the three output probabilities are computed, the most likely label is displayed, and the class probabilities are shown underneath.</p>
-<p>So the user-facing result is only the final few lines on the page, but under the hood there is a full pipeline involving drawing, normalization, a forward pass, probability conversion, and display.</p>
-<h3>Why the model can still be wrong</h3>
-<p>Even though this is a &quot;real&quot; neural network, it is still a tiny toy system.</p>
-<p>It can struggle when a circle is left open, when a square looks more like a rectangle, when a triangle is very skewed, when the user scribbles heavily, when strokes are broken or faint, when the doodle is partly filled in, or when the drawing style differs from the synthetic generator.</p>
-<p>This is not a bug so much as a reminder of what machine learning really is:</p>
-<p>The model does not understand shapes in the way a person does.
-It has learned statistical patterns from examples.</p>
-<h3>Why run it entirely in the browser</h3>
-<p>There are a few nice things about doing inference locally in JavaScript:</p>
+<p>The normalized image is fed through the neural network, the three output probabilities are computed, the most likely label is displayed, and the class probabilities are shown underneath.</p>
+<p>The user-facing result is only the shape classication and probability, but under the hood the full pipeline involves drawing, normalization, a forward pass, probability conversion, and display.</p>
+<h3>This all runs in your browser</h3>
+<p>The inference here all occurs locally in your broswer, using JavaScript.</p>
 <p>No server is needed, no drawing data need to be sent anywhere, the result appears immediately, and the whole model can be inspected as a JSON file.</p>
-<p>That makes it a good educational example.
-It shows that a neural network does not have to mean a huge cloud service or a giant opaque system.
-Sometimes it can just be a small set of numbers running in a normal web page.</p>
-<h3>A clinical analogy</h3>
-<p>One way to think about the network is as a very large set of weighted heuristics.</p>
-<p>Doctors often make pattern-based judgments such as, &quot;This cluster of features makes diagnosis A more likely,&quot; or, &quot;This other cluster pushes me toward diagnosis B.&quot; Taken together, the balance of evidence points in one direction.</p>
-<p>A neural network is not reasoning clinically, and it has no genuine understanding.
-But mathematically it does something with a family resemblance. It combines many small signals, gives more weight to some than others, builds intermediate patterns from simpler ones, and ends with a ranking of possibilities.</p>
-<p>The crucial difference is that the network’s internal heuristics are learned from data rather than explicitly written out in prose.</p>
-<h3>What would improve it next</h3>
-<p>The most useful next upgrades would probably be more human-like synthetic data, a small real test set of human drawings, smoother stroke interpolation in the browser, slightly better preprocessing, and possibly more shape classes later. In other words, the interesting challenge now is less &quot;make the network bigger&quot; and more &quot;make the training examples and input pipeline closer to real use.&quot;</p>
+<p>It shows that a neural network does not have to mean a cloud service or a giant opaque system. Sometimes it can just be a small set of numbers running in a normal web page.</p>
 <style>
   .shape-tool {
     display: grid;

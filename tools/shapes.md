@@ -2,7 +2,7 @@
 layout: layout.html
 title: Shape Classifier
 description: Draw a triangle, circle, or square on a 26 x 26 grid and let a tiny browser neural net guess the shape.
-image: /assets/images/shapes-tool.svg
+image: /assets/images/shapes-tool.png
 date: 2026-04-06
 ---
 
@@ -70,11 +70,9 @@ date: 2026-04-06
 
 ### How this works
 
-This is a deliberately tiny toy model: a multilayer perceptron with hidden layers, trained on procedurally generated triangles, circles, and squares.
+This is a tiny toy model: a multilayer perceptron with hidden layers, trained on procedurally generated triangles, circles, and squares.
 
-That means it is fully client-side, easy to inspect, and fast to run.
-
-It also means it can still be fooled by very unusual doodles, partial shapes, or heavy scribbling.
+It is fully client-side, easy to inspect, and fast to run.
 
 <style>
   .shape-tool {

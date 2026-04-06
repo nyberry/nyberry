@@ -6,7 +6,7 @@ image: /assets/images/catordegu.jpg
 date: 2026-04-06
 ---
 
-<h2>Milo or Tao?</h2>
+<h2>Cat or Degu?</h2>
 
 <p>
   Draw a <strong>cat</strong> or <strong>degu</strong> on the grid below.
@@ -55,7 +55,7 @@ date: 2026-04-06
 
 This uses the same browser-only UI as the shapes tool, but with two animal classes instead of geometric shapes.
 
-The current model is a bootstrap model trained on simple synthetic full-body cartoon cats and mouse-like degus.
+The model is trained on simple synthetic full-body cartoon cats and degus.
 
 <style>
   .shape-tool {

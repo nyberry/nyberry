@@ -8,14 +8,11 @@ const LABELS = ["circle", "square", "triangle"];
 
 const canvas = document.getElementById("shape-grid");
 const previewCanvas = document.getElementById("shape-preview");
-const statusEl = document.getElementById("shape-status");
 const predictionEl = document.getElementById("shape-prediction");
 const probabilitiesEl = document.getElementById("shape-probabilities");
 const brushInput = document.getElementById("shape-brush-size");
 const classifyButton = document.getElementById("shape-classify-btn");
 const clearButton = document.getElementById("shape-clear-btn");
-const modeButtons = Array.from(document.querySelectorAll(".shape-mode-btn"));
-const stampButtons = Array.from(document.querySelectorAll(".shape-stamp-btn"));
 
 canvas.width = DISPLAY_SIZE;
 canvas.height = DISPLAY_SIZE;
@@ -26,9 +23,12 @@ const ctx = canvas.getContext("2d");
 const previewCtx = previewCanvas.getContext("2d");
 
 let grid = new Float32Array(CELL_COUNT);
-let drawingMode = "draw";
 let isPointerDown = false;
 let model = null;
+
+function formatPrediction(label) {
+  return `Prediction: "${label.toUpperCase()}"`;
+}
 
 function createBlankImage() {
   return new Float32Array(CELL_COUNT);
@@ -166,15 +166,15 @@ function updateCanvas() {
   renderImage(previewCtx, normalizeImage(grid), PREVIEW_SIZE / GRID_SIZE, false);
 }
 
-function updateModeButtons() {
-  for (const button of modeButtons) {
-    button.classList.toggle("active", button.dataset.mode === drawingMode);
-  }
+function showClassificationResult(show) {
+  classifyButton.hidden = show;
+  predictionEl.hidden = !show;
+  probabilitiesEl.hidden = !show;
 }
 
 function paintAt(x, y) {
   const brushRadius = Number(brushInput.value) - 1;
-  const value = drawingMode === "draw" ? 1 : 0;
+  const value = 1;
 
   for (let dy = -brushRadius; dy <= brushRadius; dy += 1) {
     for (let dx = -brushRadius; dx <= brushRadius; dx += 1) {
@@ -256,85 +256,31 @@ function renderProbabilities(results) {
 
 function classifyCurrentDrawing() {
   if (!model) {
-    statusEl.textContent = "The model is still loading.";
     return;
   }
 
   const normalized = normalizeImage(grid);
 
   if (getActivePixelCount(normalized) < 8) {
-    predictionEl.textContent = "Draw a shape first.";
+    predictionEl.textContent = "";
     probabilitiesEl.innerHTML = "";
     renderImage(previewCtx, normalized, PREVIEW_SIZE / GRID_SIZE, false);
+    showClassificationResult(false);
     return;
   }
 
   const results = predict(normalized);
-  predictionEl.textContent = `Best guess: ${results[0].label}`;
+  predictionEl.textContent = formatPrediction(results[0].label);
   renderProbabilities(results);
+  showClassificationResult(true);
 }
 
 function clearDrawing() {
   grid = createBlankImage();
-  predictionEl.textContent = "Waiting for a drawing.";
+  predictionEl.textContent = "";
   probabilitiesEl.innerHTML = "";
+  showClassificationResult(false);
   updateCanvas();
-}
-
-function pointToSegmentDistance(px, py, ax, ay, bx, by) {
-  const abx = bx - ax;
-  const aby = by - ay;
-  const apx = px - ax;
-  const apy = py - ay;
-  const abLengthSquared = (abx * abx) + (aby * aby);
-  const t = abLengthSquared === 0 ? 0 : clamp(((apx * abx) + (apy * aby)) / abLengthSquared, 0, 1);
-  const closestX = ax + (t * abx);
-  const closestY = ay + (t * aby);
-  const dx = px - closestX;
-  const dy = py - closestY;
-  return Math.sqrt((dx * dx) + (dy * dy));
-}
-
-function stampShape(shape) {
-  const stamped = createBlankImage();
-
-  for (let y = 0; y < GRID_SIZE; y += 1) {
-    for (let x = 0; x < GRID_SIZE; x += 1) {
-      const px = x + 0.5;
-      const py = y + 0.5;
-      let active = false;
-
-      if (shape === "circle") {
-        const dx = px - 13;
-        const dy = py - 13;
-        const distance = Math.sqrt((dx * dx) + (dy * dy));
-        active = Math.abs(distance - 7.2) <= 1.3;
-      } else if (shape === "square") {
-        const dx = Math.abs(px - 13);
-        const dy = Math.abs(py - 13);
-        active = dx <= 7.5 && dy <= 7.5 && (Math.abs(dx - 7.5) <= 1.2 || Math.abs(dy - 7.5) <= 1.2);
-      } else if (shape === "triangle") {
-        const vertices = [
-          [13, 5.3],
-          [6, 18.7],
-          [20, 18.7]
-        ];
-        const edgeDistances = [
-          pointToSegmentDistance(px, py, vertices[0][0], vertices[0][1], vertices[1][0], vertices[1][1]),
-          pointToSegmentDistance(px, py, vertices[1][0], vertices[1][1], vertices[2][0], vertices[2][1]),
-          pointToSegmentDistance(px, py, vertices[2][0], vertices[2][1], vertices[0][0], vertices[0][1])
-        ];
-        active = Math.min(...edgeDistances) <= 1.2;
-      }
-
-      stamped[imageIndex(x, y)] = active ? 1 : 0;
-    }
-  }
-
-  grid = stamped;
-  predictionEl.textContent = `Stamped a ${shape}.`;
-  updateCanvas();
-  classifyCurrentDrawing();
 }
 
 async function loadModel() {
@@ -351,11 +297,8 @@ async function loadModel() {
       weights: Float32Array.from(layer.weights),
       biases: Float32Array.from(layer.biases)
     }));
-    const hiddenLayers = model.hiddenLayerSizes ? model.hiddenLayerSizes.join(" -> ") : "unknown";
-    statusEl.textContent = `Model ready. MLP ${GRID_SIZE * GRID_SIZE} -> ${hiddenLayers} -> ${model.labels.length}. Synthetic validation accuracy: ${(model.validationAccuracy * 100).toFixed(1)}%.`;
   } catch (error) {
-    statusEl.textContent = "Model load failed. Rebuild the site or regenerate the shape model.";
-    predictionEl.textContent = error.message;
+    predictionEl.textContent = 'Prediction: "ERROR"';
   }
 }
 
@@ -387,22 +330,9 @@ canvas.addEventListener("pointerup", endPointerSession);
 canvas.addEventListener("pointerleave", endPointerSession);
 canvas.addEventListener("pointercancel", endPointerSession);
 
-for (const button of modeButtons) {
-  button.addEventListener("click", () => {
-    drawingMode = button.dataset.mode;
-    updateModeButtons();
-  });
-}
-
-for (const button of stampButtons) {
-  button.addEventListener("click", () => {
-    stampShape(button.dataset.shape);
-  });
-}
-
 classifyButton.addEventListener("click", classifyCurrentDrawing);
 clearButton.addEventListener("click", clearDrawing);
 
-updateModeButtons();
+showClassificationResult(false);
 updateCanvas();
 loadModel();

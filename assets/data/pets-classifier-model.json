@@ -2,7 +2,7 @@
   "type": "mlp",
   "labels": [
     "cat",
-    "mouse"
+    "degu"
   ],
   "gridSize": 40,
   "hiddenLayerSizes": [

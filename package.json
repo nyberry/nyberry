@@ -9,7 +9,12 @@
     "serve": "npx @11ty/eleventy --serve",
     "build": "npx @11ty/eleventy",
     "train:shapes": "node scripts/train-shape-classifier.mjs",
-    "train:pets": "node scripts/train-pets-classifier.mjs"
+    "train:pets": "node scripts/train-pets-classifier.mjs",
+    "tritalk:fetch": "python3 -m tritalk_gpt.fetch",
+    "tritalk:prepare": "python3 -m tritalk_gpt.prepare",
+    "tritalk:train": "python3 -m tritalk_gpt.train",
+    "tritalk:sample": "python3 -m tritalk_gpt.sample",
+    "tritalk:export-browser": "python3 scripts/export-tritalk-gpt-browser.py"
   },
   "keywords": [],
   "author": "",

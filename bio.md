@@ -8,7 +8,7 @@ title: Bio
 
 ### Hi, I'm Nick.
 
-I'm a doctor in Dorset, UK.
+I'm based in Dorset, UK.
 
 I am interested in the application of AI technologies in primary care, and am studying for a masters degree in Data Science for Healthcare at Exeter University.
 

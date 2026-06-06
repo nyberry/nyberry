@@ -9,7 +9,7 @@ title: nyberry
 
 Welcome to my site. 
 
-Hope you find something interesting, useful, maybe both.
+Hope you find something useful, interesting or fun.
 <br><br>
 
 <div id="contents" class="grid">

@@ -1,12 +1,71 @@
----
-layout: layout.html
-title: TriTalk miniGPT Live
-description: A server-backed TriTalk language model embedded from Hugging Face Spaces.
-image: /assets/images/tritalk-gpt-live-tile.svg
-date: 2026-06-06
----
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TriTalk miniGPT Live</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
 
-<section class="tritalk-live-hero">
+<body class="">
+
+  <nav>
+    <div class="menu"><a href="/" aria-label="Home">
+      <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512">
+        <path fill="currentColor" d="M541 229.16L327.41 43a35.84 35.84 0 0 0-46.8 0L35 229.16a16 16 0 0 0-1.16 22.59l21.41 23.57a16 16 0 0 0 22.59 1.16L96 240.81V464a16 16 0 0 0 16 16h112a16 16 0 0 0 16-16V352h96v112a16 16 0 0 0 16 16h112a16 16 0 0 0 16-16V240.81l18.16 15.67a16 16 0 0 0 22.59-1.16l21.41-23.57a16 16 0 0 0-1.16-22.59z"/>
+      </svg>
+    </a></div>
+    <ul class="menu">
+      <li>
+        <a href="/bio">About</a>
+      </li>
+
+      <li class="dropdown">
+        <a href="#">Tools▾</a>
+        <ul class="dropdown-content">
+          <li><a href="/projects/clini">Clini</a></li>
+          <li><a href="/projects/va">C&amp;P Toolkit</a></li>
+          <li><a href="/tools/bmi">BMI</a></li>  
+          <li><a href="/tools/colorblind">Colour Vision Test</a></li>
+          <li><a href="/tools/neuro">Dermatomes</a></li>
+          <li><a href="/tools/growth">Growth Charts</a></li>
+          <li><a href="/tools/icd10">ICD-10 Lookup</a></li>
+          <li><a href="/tools/gfr">Kidney Calculator</a></li>
+          <li><a href="/tools/labconverter">Lab Unit Converter</a></li>
+          <li><a href="/tools/paedsdoses">Paeds Doses</a></li>
+          <li><a href="/tools/qrisk">Live QRISK3</a></li>
+          <li><a href="/tools/snellen">Visual Acuity</a></li>
+        </ul>
+      </li>
+
+      <li class="dropdown">
+        <a href="#">Projects▾</a>
+        <ul class="dropdown-content">
+          <li><a href="/projects/fairness_toolkit">Intersectional Fairness Toolkit</a></li>
+          <li><a href="/projects/forecast">Demand Forecasting</a></li>
+          <li><a href="/projects/hospital_database">Hospital Database</a></li>
+          <li><a href="/projects/queues">Optimising Online Triage</a></li>
+          <li><a href="/projects/simulation">Discrete Event Simulation</a></li>
+        </ul>
+      </li>
+
+      <li class="dropdown">
+        <a href="#">Fun▾</a>
+        <ul class="dropdown-content">
+          <li><a href="/projects/tritalk-gpt-live">TriTalk miniGPT Live</a></li>
+          <li><a href="/projects/tritalk-gpt">TriTalk miniGPT</a></li>
+          <li><a href="/blog/">Blog</a></li>
+          <li><a href="/games/sumfing">Sumfing</a></li>
+          <li><a href="/tools/pets">Degu or Cat?</a></li>
+          <li><a href="/tools/shapes">Shape Classifier</a></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+
+  <main class="main-container">
+      
+      <section class="tritalk-live-hero">
   <div class="tritalk-live-hero__copy">
     <p class="tritalk-live-kicker">Hosted model</p>
     <h1>TriTalk miniGPT Live</h1>
@@ -19,7 +78,6 @@ date: 2026-06-06
       and a better validation loss than the original browser demo.
     </p>
   </div>
-
   <div class="tritalk-live-hero__panel">
     <p class="tritalk-live-panel-label">Model snapshot</p>
     <p class="tritalk-live-meta">
@@ -30,7 +88,6 @@ date: 2026-06-06
     </p>
   </div>
 </section>
-
 <section class="tritalk-live-embed">
   <div class="tritalk-live-embed__frame">
     <iframe
@@ -42,10 +99,8 @@ date: 2026-06-06
     ></iframe>
   </div>
 </section>
-
 <section class="tritalk-live-explainer">
 </section>
-
 <style>
   .tritalk-live-hero,
   .tritalk-live-embed {
@@ -163,3 +218,10 @@ date: 2026-06-06
     }
   }
 </style>
+
+    
+
+  
+  </main>
+</body>
+</html>

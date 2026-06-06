@@ -43,26 +43,6 @@ function tokenizeWords(text, lowercase = true) {
   return matches ? matches : [];
 }
 
-function detokenize(tokens) {
-  const output = [];
-  const attachLeft = new Set([".", ",", "!", "?", ":", ";", ")", "]", "'s"]);
-  const attachRight = new Set(["(", "["]);
-
-  for (const token of tokens) {
-    if (output.length === 0) {
-      output.push(token);
-    } else if (attachLeft.has(token)) {
-      output[output.length - 1] += token;
-    } else if (attachRight.has(output[output.length - 1])) {
-      output[output.length - 1] += token;
-    } else {
-      output.push(` ${token}`);
-    }
-  }
-
-  return output.join("");
-}
-
 function erfApprox(value) {
   const sign = value < 0 ? -1 : 1;
   const x = Math.abs(value);
@@ -289,6 +269,88 @@ async function nextFrame() {
   await new Promise((resolve) => window.requestAnimationFrame(() => resolve()));
 }
 
+function mergeTokenSymbols(symbols, pair) {
+  const merged = [];
+  let index = 0;
+  const mergedToken = pair[0] + pair[1];
+
+  while (index < symbols.length) {
+    if (index < symbols.length - 1 && symbols[index] === pair[0] && symbols[index + 1] === pair[1]) {
+      merged.push(mergedToken);
+      index += 2;
+    } else {
+      merged.push(symbols[index]);
+      index += 1;
+    }
+  }
+
+  return merged;
+}
+
+function encodeTokenWithBPE(token) {
+  if (model.encodeCache.has(token)) {
+    return [...model.encodeCache.get(token)];
+  }
+
+  let symbols = [model.spaceMarker, ...Array.from(token)];
+
+  while (symbols.length >= 2) {
+    let bestRank = null;
+    let bestPair = null;
+
+    for (let index = 0; index < symbols.length - 1; index += 1) {
+      const pairKey = `${symbols[index]}\u0000${symbols[index + 1]}`;
+      const rank = model.mergeRanks.get(pairKey);
+      if (rank === undefined) {
+        continue;
+      }
+      if (bestRank === null || rank < bestRank) {
+        bestRank = rank;
+        bestPair = [symbols[index], symbols[index + 1]];
+      }
+    }
+
+    if (!bestPair) {
+      break;
+    }
+
+    symbols = mergeTokenSymbols(symbols, bestPair);
+  }
+
+  model.encodeCache.set(token, symbols);
+  return [...symbols];
+}
+
+function encodePromptToIds(text) {
+  const wordTokens = tokenizeWords(text, model.tokenizerLowercase);
+  const pieces = [];
+  for (const token of wordTokens) {
+    pieces.push(...encodeTokenWithBPE(token));
+  }
+  return pieces.map((piece) => model.stoi.get(piece) ?? model.unkId);
+}
+
+function decodeIds(ids) {
+  const pieces = [];
+  for (const tokenId of ids) {
+    const token = model.vocab[tokenId];
+    if (!token || token === model.specialTokens.pad || token === model.specialTokens.bos) {
+      continue;
+    }
+    if (token === model.specialTokens.eos) {
+      break;
+    }
+    pieces.push(token);
+  }
+
+  let text = pieces.join("");
+  text = text.replaceAll(model.spaceMarker, " ");
+  text = text.replace(/\s+([.,!?;:)\]])/g, "$1");
+  text = text.replace(/([(\[])\s+/g, "$1");
+  text = text.replace(/\s+/g, " ");
+  return text.trim();
+}
+
 async function generateCompletion() {
   if (!model || isGenerating) {
     return;
@@ -298,18 +360,13 @@ async function generateCompletion() {
   setBusy(true);
 
   try {
-    const keepCase = Boolean(model.tokenization.keep_case);
-    const promptTokens = tokenizeWords(promptInput.value, !keepCase);
-    const bosId = model.stoi.get(model.specialTokens.bos);
-    const eosId = model.stoi.get(model.specialTokens.eos);
-    const unkId = model.stoi.get(model.specialTokens.unk);
-    const maxNewTokens = Math.max(1, Number(tokenCountInput.value) || 24);
-    const temperature = Math.max(0.1, Number(temperatureInput.value) || 0.9);
-    const topK = Math.max(1, Number(topKInput.value) || 20);
-    const context = [bosId, ...promptTokens.map((token) => model.stoi.get(token) ?? unkId)];
-    let visibleTokens = promptTokens.slice();
+    const promptIds = encodePromptToIds(promptInput.value);
+    const maxNewTokens = Math.max(1, Number(tokenCountInput.value) || 28);
+    const temperature = Math.max(0.1, Number(temperatureInput.value) || 0.7);
+    const topK = Math.max(1, Number(topKInput.value) || 12);
+    const context = [model.bosId, ...promptIds];
 
-    setOutput(detokenize(visibleTokens));
+    setOutput(decodeIds(context));
     setStatus("Generating in your browser…", "working");
 
     for (let step = 0; step < maxNewTokens; step += 1) {
@@ -321,20 +378,14 @@ async function generateCompletion() {
       const windowed = context.slice(-model.config.block_size);
       const logits = forward(windowed);
       const nextTokenId = sampleIndex(logits, temperature, topK);
-
       context.push(nextTokenId);
-      const nextToken = model.vocab[nextTokenId];
 
-      if (nextToken === model.specialTokens.eos) {
+      if (nextTokenId === model.eosId) {
         setStatus("Generation complete.", "good");
         break;
       }
 
-      if (nextToken !== model.specialTokens.pad && nextToken !== model.specialTokens.bos) {
-        visibleTokens.push(nextToken);
-      }
-
-      setOutput(detokenize(visibleTokens));
+      setOutput(decodeIds(context));
       await nextFrame();
 
       if (step === maxNewTokens - 1) {
@@ -406,13 +457,28 @@ async function loadModel() {
 
   const weightBuffer = await weightsResponse.arrayBuffer();
   const tensor = (name) => getTensorView(weightBuffer, manifest.tensors[name]);
+  const tokenizer = manifest.tokenizer;
+  const mergeRanks = new Map(tokenizer.merges.map((pair, index) => [`${pair[0]}\u0000${pair[1]}`, index]));
+  const stoi = new Map(tokenizer.vocab.map((token, index) => [token, index]));
 
   model = {
     config: manifest.config,
     tokenization: manifest.tokenization,
-    specialTokens: manifest.special_tokens,
-    vocab: manifest.vocab,
-    stoi: new Map(manifest.vocab.map((token, index) => [token, index])),
+    tokenizerLowercase: Boolean(tokenizer.lowercase),
+    specialTokens: {
+      pad: "<pad>",
+      bos: "<bos>",
+      eos: "<eos>",
+      unk: "<unk>"
+    },
+    vocab: tokenizer.vocab,
+    stoi,
+    bosId: stoi.get("<bos>"),
+    eosId: stoi.get("<eos>"),
+    unkId: stoi.get("<unk>"),
+    spaceMarker: tokenizer.space_marker,
+    mergeRanks,
+    encodeCache: new Map(),
     tokenEmbedding: tensor("token_embedding.weight"),
     positionEmbedding: tensor("position_embedding.weight"),
     lnFWeight: tensor("ln_f.weight"),
@@ -423,9 +489,9 @@ async function loadModel() {
 
   const sizeMb = (weightBuffer.byteLength / (1024 * 1024)).toFixed(1);
   metaEl.textContent =
-    `Vocabulary ${manifest.config.vocab_size.toLocaleString()} words • ` +
-    `${manifest.config.n_layer} layers • ` +
-    `${manifest.config.n_embd} embedding width • ` +
+    `Validation loss ${manifest.training.best_val_loss.toFixed(3)} • ` +
+    `${manifest.corpus.train_tokens.toLocaleString()} train tokens • ` +
+    `${manifest.config.vocab_size.toLocaleString()} subword tokens • ` +
     `${sizeMb} MB weights`;
   setStatus("Model loaded. Everything now runs locally in your browser.", "good");
   setBusy(false);

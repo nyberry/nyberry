@@ -1,0 +1,64 @@
+<h1>TriTalk miniGPT v0.1.1</h1>
+<p>This folder is a local-only follow-on to the public browser demo.</p>
+<p>The goals for <code>v0.1.1</code> are:</p>
+<ul>
+<li>train on more TriTalk posts</li>
+<li>switch from word-level tokens to subword tokens</li>
+<li>split train and validation data by post, not by a single long token stream</li>
+<li>support longer training runs and cleaner checkpointing</li>
+</ul>
+<h2>Why this version exists</h2>
+<p>The public demo is intentionally tiny and browser-friendly.</p>
+<p>That was useful as a proof of concept, but it has clear quality limits:</p>
+<ul>
+<li>word-level tokenization is brittle</li>
+<li>the vocabulary gets large quickly</li>
+<li>rare words are handled poorly</li>
+<li>the validation split is not as clean as it should be</li>
+</ul>
+<p>This version keeps the same broad GPT idea but improves the local training pipeline.</p>
+<h2>Suggested workflow</h2>
+<h3>1. Fetch a larger corpus</h3>
+<p>You can still use the original fetcher:</p>
+<pre><code class="language-bash">python3 -m tritalk_gpt.fetch \
+  --pages 8 \
+  --max-topics 180 \
+  --max-posts-per-topic 0 \
+  --delay-seconds 0.2 \
+  --output tritalk_gpt_v011/data/posts_large.jsonl
+</code></pre>
+<h3>2. Prepare the subword corpus</h3>
+<pre><code class="language-bash">python3 -m tritalk_gpt_v011.prepare \
+  --input tritalk_gpt_v011/data/posts_large.jsonl \
+  --output-dir tritalk_gpt_v011/data/corpus_v011 \
+  --vocab-size 2048 \
+  --min-pair-frequency 2
+</code></pre>
+<h3>3. Train</h3>
+<pre><code class="language-bash">python3 -m tritalk_gpt_v011.train \
+  --input-dir tritalk_gpt_v011/data/corpus_v011 \
+  --out-dir tritalk_gpt_v011/runs/v011-large \
+  --batch-size 24 \
+  --block-size 128 \
+  --n-layer 6 \
+  --n-head 6 \
+  --n-embd 192 \
+  --max-steps 8000
+</code></pre>
+<h3>4. Sample</h3>
+<pre><code class="language-bash">python3 -m tritalk_gpt_v011.sample \
+  --checkpoint tritalk_gpt_v011/runs/v011-large/checkpoint.pt \
+  --tokenizer tritalk_gpt_v011/data/corpus_v011/tokenizer.json \
+  --prompt &quot;swim training&quot;
+</code></pre>
+<h2>Expectations</h2>
+<p>This should be better than the browser demo, but &quot;an order of magnitude better&quot;
+is a quality goal rather than a guaranteed metric outcome.</p>
+<p>The main reasons to expect improvement are:</p>
+<ul>
+<li>more data</li>
+<li>cleaner evaluation</li>
+<li>subword tokenization</li>
+<li>longer training</li>
+<li>slightly larger default model</li>
+</ul>

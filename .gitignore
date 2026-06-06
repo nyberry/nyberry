@@ -3,5 +3,8 @@ __pycache__/
 
 tritalk_gpt/data/
 tritalk_gpt/runs/
+tritalk_gpt_v011/data/
+tritalk_gpt_v011/runs/
+tritalk_gpt_v011/local_preview/model/
 
 blog/uncertainty.md

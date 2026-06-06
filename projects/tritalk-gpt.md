@@ -2,6 +2,7 @@
 layout: layout.html
 title: TriTalk miniGPT
 description: A tiny GPT-style language model trained on public TriTalk forum posts and running entirely in the browser.
+image: /assets/images/tritalk-gpt-tile.svg
 date: 2026-06-05
 ---
 
@@ -10,15 +11,19 @@ date: 2026-06-05
     <p class="tritalk-kicker">Browser-only language model</p>
     <h1>TriTalk miniGPT</h1>
     <p class="tritalk-lede">
-      This is a toy GPT text model trained on 2,463 public posts from the
-      TriTalk forum. The cleaned training data contained 130,608 word tokens. The page downloads the model weights once, then generates text entirely on
-      your device.
+      This is a small language model trained on public TriTalk forum posts. It runs
+      entirely in your browser: the page downloads the model weights once, then
+      generates each completion on your device with no API calls.
+    </p>
+    <p class="tritalk-note">
+      It is designed to mimic some of the tone, topics, and
+      phrasing of the forum.
     </p>
   </div>
 
   <div class="tritalk-hero__panel">
     <p class="tritalk-panel-label">Model snapshot</p>
-    <p id="tritalk-meta" class="tritalk-meta">Waiting for model data (13.7MB)…</p>
+    <p id="tritalk-meta" class="tritalk-meta">Waiting for model data (about 16MB)…</p>
     <p id="tritalk-status" class="tritalk-status" data-tone="neutral">
       Preparing browser demo…
     </p>
@@ -32,31 +37,35 @@ date: 2026-06-05
       <textarea
         id="tritalk-prompt"
         rows="4"
-        placeholder="Try something like: swim training"
-      >swim training</textarea>
+        placeholder="Try something like: I'm training for my first triathlon and"
+      >I'm training for my first triathlon and</textarea>
     </label>
 
     <div class="tritalk-chip-row">
-      <button type="button" class="tritalk-chip" data-tritalk-prompt="hate swimming">hate swimming</button>
-      <button type="button" class="tritalk-chip" data-tritalk-prompt="sharks">sharks</button>
-      <button type="button" class="tritalk-chip" data-tritalk-prompt="drug cheats">drug cheats</button>
-      <button type="button" class="tritalk-chip" data-tritalk-prompt="the best beer">the best beer</button>
+      <button type="button" class="tritalk-chip" data-tritalk-prompt="I'm training for my first triathlon and">I'm training for my first triathlon and</button>
+      <button type="button" class="tritalk-chip" data-tritalk-prompt="I struggled with the swim because">I struggled with the swim because</button>
+      <button type="button" class="tritalk-chip" data-tritalk-prompt="My bike split was">My bike split was</button>
+      <button type="button" class="tritalk-chip" data-tritalk-prompt="I've got my first open water swim">I've got my first open water swim</button>
+      <button type="button" class="tritalk-chip" data-tritalk-prompt="I need advice on avoiding sharks">I need advice on avoiding sharks</button>
+      <button type="button" class="tritalk-chip" data-tritalk-prompt="My Garmin keeps losing signal on">My Garmin keeps losing signal on</button>
+      <button type="button" class="tritalk-chip" data-tritalk-prompt="What do people eat before">What do people eat before</button>
+      <button type="button" class="tritalk-chip" data-tritalk-prompt="Yesterday I had 2 pints of">Yesterday I had 2 pints of</button>
     </div>
 
     <div class="tritalk-knobs">
       <label class="tritalk-field tritalk-field--compact">
         <span>Temperature</span>
-        <input id="tritalk-temperature" type="number" min="0.1" max="2" step="0.1" value="0.9">
+        <input id="tritalk-temperature" type="number" min="0.1" max="2" step="0.1" value="0.7">
       </label>
 
       <label class="tritalk-field tritalk-field--compact">
         <span>Top-k</span>
-        <input id="tritalk-topk" type="number" min="1" max="500" step="1" value="100">
+        <input id="tritalk-topk" type="number" min="1" max="100" step="1" value="12">
       </label>
 
       <label class="tritalk-field tritalk-field--compact">
         <span>New tokens</span>
-        <input id="tritalk-token-count" type="number" min="1" max="80" step="1" value="28">
+        <input id="tritalk-token-count" type="number" min="1" max="120" step="1" value="28">
       </label>
     </div>
 
@@ -73,29 +82,44 @@ date: 2026-06-05
 </section>
 
 <section class="tritalk-explainer">
-  <h2>Version 0.0.1</h2>
+  <h2>What It Is</h2>
   <p>
-    The training happened off-line in Python using a small decoder-only transformer.
-    The result was then exported into static weight files that JavaScript can load.
+    This model was trained on public TriTalk posts and
+    uses a subword tokenizer, which helps it handle rarer terms, race names, and
+    forum-style phrasing more gracefully than a simple word list.
   </p>
   <p>
-    When you press generate, the browser tokenizes your prompt, runs the model
-    layer by layer, samples the next word, appends it, and repeats.
+    The browser bundle contains a 6-layer transformer with a 4,061-token
+    subword vocabulary. The training run reached a validation loss of about 4.535,
+    which corresponds to a perplexity of roughly 93.
+  </p>
+  <p>
+    The best results usually come from prompt starters that sound like the start
+    of a forum post rather than a bare topic label.
+  </p>
+
+  <h2>How it works</h2>
+  <p>
+    The training happened off-line in Python. The resulting checkpoint was then
+    exported into static weight files that JavaScript can load from this site.
+  </p>
+  <p>
+    When you press generate, the browser tokenizes your prompt into subword pieces,
+    runs the transformer layer by layer, samples the next token, appends it, and repeats.
   </p>
   <p>
     No API calls are made during inference. After the model loads, the generation
     loop is local.
   </p>
 
-  <h2>It's not very good is it?</h2>
+  <h2>Why is it not very good?</h2>
   <p>
-    This model is tiny. It has a short context window, a
-    word-level vocabulary, and very limited reasoning ability. It is just a
-    proof of concept.
+    It is a small experimental
+    model with a short context window and very limited reasoning ability. Your welcome.
   </p>
   <p>
-    It also inherits the quirks of the training data. You should expect triathlon
-    jargon, repetition, and odd completions involving Fossies, crocs, and the word "your" in weird places.
+    You should still expect repetition, talk abot crocs and Fossies, odd phrasing, and the
+    occasional derailment.
   </p>
 </section>
 
@@ -268,57 +292,60 @@ date: 2026-06-05
   #tritalk-stop-btn:disabled,
   .tritalk-field textarea:disabled,
   .tritalk-field input:disabled {
-    opacity: 0.55;
+    opacity: 0.58;
     cursor: not-allowed;
     transform: none;
+    box-shadow: none;
   }
 
   .tritalk-field--compact {
-    flex: 1 1 140px;
-    margin-bottom: 0;
+    flex: 1 1 155px;
+  }
+
+  .tritalk-actions {
+    margin-top: 0.5rem;
+  }
+
+  .tritalk-console__output {
+    display: flex;
+    flex-direction: column;
   }
 
   .tritalk-output {
-    min-height: 18rem;
+    flex: 1;
+    min-height: 22rem;
     margin: 0;
-    white-space: pre-wrap;
-    border-radius: 18px;
-    background:
-      linear-gradient(180deg, rgba(14, 24, 28, 0.95), rgba(24, 40, 45, 0.95)),
-      radial-gradient(circle at top right, rgba(76, 180, 176, 0.22), transparent 30%);
-    color: #d9f4ef;
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgba(14, 24, 28, 0.96), rgba(25, 40, 47, 0.96));
+    color: #daf5ef;
     padding: 1.1rem;
-    font: 0.98rem/1.6 "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    white-space: pre-wrap;
     overflow-wrap: anywhere;
-  }
-
-  .tritalk-explainer {
-    margin: 1.6rem 0;
+    font: 1rem/1.62 "SFMono-Regular", Menlo, Consolas, monospace;
   }
 
   .tritalk-explainer h2 {
     margin-top: 0;
   }
 
-  @media (max-width: 820px) {
+  .tritalk-explainer h2 + p {
+    margin-top: 0;
+  }
+
+  .tritalk-explainer h2:not(:first-child) {
+    margin-top: 2rem;
+  }
+
+  @media (max-width: 920px) {
     .tritalk-hero,
     .tritalk-console {
       grid-template-columns: 1fr;
     }
 
-    .tritalk-hero__copy,
-    .tritalk-hero__panel,
-    .tritalk-console__controls,
-    .tritalk-console__output,
-    .tritalk-explainer {
-      padding: 1.05rem;
-      border-radius: 20px;
-    }
-
     .tritalk-output {
-      min-height: 14rem;
+      min-height: 16rem;
     }
   }
 </style>
 
-<script type="module" src="/assets/js/tritalk-gpt-demo.js"></script>
+<script src="/assets/js/tritalk-gpt-demo.js" defer></script>

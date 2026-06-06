@@ -14,7 +14,11 @@
     "tritalk:prepare": "python3 -m tritalk_gpt.prepare",
     "tritalk:train": "python3 -m tritalk_gpt.train",
     "tritalk:sample": "python3 -m tritalk_gpt.sample",
-    "tritalk:export-browser": "python3 scripts/export-tritalk-gpt-browser.py"
+    "tritalk:export-browser": "python3 scripts/export-tritalk-gpt-browser.py",
+    "tritalk:v011:prepare": "python3 -m tritalk_gpt_v011.prepare",
+    "tritalk:v011:train": "python3 -m tritalk_gpt_v011.train",
+    "tritalk:v011:sample": "python3 -m tritalk_gpt_v011.sample",
+    "tritalk:v011:export-browser": "python3 scripts/export-tritalk-gpt-v011-browser.py"
   },
   "keywords": [],
   "author": "",

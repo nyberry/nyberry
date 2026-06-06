@@ -11,15 +11,14 @@ date: 2026-06-05
     <h1>TriTalk miniGPT</h1>
     <p class="tritalk-lede">
       This is a toy GPT text model trained on 2,463 public posts from the
-      TriTalk forum. The cleaned corpus contains 130,608 word tokens, and the
-      page downloads the model weights once, then generates text entirely on
+      TriTalk forum. The cleaned training data contained 130,608 word tokens. The page downloads the model weights once, then generates text entirely on
       your device.
     </p>
   </div>
 
   <div class="tritalk-hero__panel">
     <p class="tritalk-panel-label">Model snapshot</p>
-    <p id="tritalk-meta" class="tritalk-meta">Waiting for model data…</p>
+    <p id="tritalk-meta" class="tritalk-meta">Waiting for model data (13.7MB)…</p>
     <p id="tritalk-status" class="tritalk-status" data-tone="neutral">
       Preparing browser demo…
     </p>
@@ -52,7 +51,7 @@ date: 2026-06-05
 
       <label class="tritalk-field tritalk-field--compact">
         <span>Top-k</span>
-        <input id="tritalk-topk" type="number" min="1" max="100" step="1" value="20">
+        <input id="tritalk-topk" type="number" min="1" max="500" step="1" value="100">
       </label>
 
       <label class="tritalk-field tritalk-field--compact">
@@ -90,13 +89,13 @@ date: 2026-06-05
 
   <h2>It's not very good is it?</h2>
   <p>
-    This model is tiny by modern standards. It has a short context window, a
+    This model is tiny. It has a short context window, a
     word-level vocabulary, and very limited reasoning ability. It is just a
     proof of concept.
   </p>
   <p>
     It also inherits the quirks of the training data. You should expect triathlon
-    jargon, forum-like phrasing, repetition, and some odd completions involving Fossies, crocs, and the word "your" in weird places.
+    jargon, repetition, and odd completions involving Fossies, crocs, and the word "your" in weird places.
   </p>
 </section>
 
@@ -187,10 +186,16 @@ date: 2026-06-05
     grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
   }
 
+  .tritalk-console__controls,
+  .tritalk-console__output {
+    min-width: 0;
+  }
+
   .tritalk-field {
     display: grid;
     gap: 0.45rem;
     margin-bottom: 1rem;
+    min-width: 0;
   }
 
   .tritalk-field span {
@@ -202,6 +207,8 @@ date: 2026-06-05
   .tritalk-field textarea,
   .tritalk-field input {
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     border: 1px solid #d7d1c3;
     border-radius: 14px;
     background: #fffefb;

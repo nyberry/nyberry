@@ -57,37 +57,26 @@ date: 2026-06-08
   <h2>What It Is</h2>
   <p>
     MicroMedGPT is a (very) small language model trained
-    to invent new medication-like names one character at a time.
+    to invent new medication-like names, one character at a time.
     Can a very small model learn the spelling rhythms
     of drug names well enough to make plausible new ones?
   </p>
   <p>
     The model has a tiny vocabulary of 27 tokens: the letters <code>a</code> to
     <code>z</code>, plus one end-of-name token. That means every name is treated
-    as a sequence of characters rather than as words or subwords. This
-    keeps the machinery understandable and makes the model feel closer to a
-    transparent teaching example than a black box.
+    as a sequence of characters rather than as words or subwords.
   </p>
-
-  <h2>Karpathy's MicroGPT</h2>
   <p>
     The project was inspired by Andrej Karpathy's
     <a href="https://gist.github.com/karpathy/8627fe009c40f57531cb18360106ce95"><code>microgpt.py</code></a>,
-    a compact, dependency-free GPT implementation written in ordinary Python.
-    Karpathy's version demonstrates the whole idea end to end: a transformer,
-    an autograd engine, training, and sampling, all in one file.
-  </p>
-  <p>
-    Training happens offline in pure Python, without PyTorch, TensorFlow, NumPy, or a GPU. 
+    a compact, dependency-free GPT implementation written in Python.
+    Karpathy's version demonstrates the idea of a GPT end to end: a transformer,
+    an autograd engine, training, and sampling, all in one Python file, with no dependencies.
   </p>
 
-  <h2>The Corpus</h2>
   <p>
-    The training list is compiled from the US FDA National Drug Code Directory.
-    It uses human prescription drug entries and pulled both proprietary names and
-    non-proprietary names. The raw directory contains many catalogue-like product
-    descriptions, so a cleaner lowercases the text, removes punctuation and
-    numbers, keeps alphabetic characters only, and strips common formulation
+    The training corpus is a list of drug names compiled from the US FDA National Drug Code Directory.
+    It pulls both proprietary names and non-proprietary names, lowercased, with punctuation and numbers removed. It keeps alphabetic characters only, and strips common formulation
     words such as <code>tablet</code>, <code>capsule</code>,
     <code>injection</code>, <code>solution</code>, <code>cream</code>, and
     <code>spray</code>.
@@ -97,19 +86,17 @@ date: 2026-06-08
     to notice some of the characteristic endings and internal shapes of medicine
     names, while still being small enough to train in about a minute on a laptop.
   </p>
-
-  <h2>Training And Inference</h2>
   <p>
     The offline training run uses 1,000 steps. At the end of that run the final
-    training loss was 2.262, which corresponds to a perplexity of about 9.61.
+    training loss is 2.262, which corresponds to a perplexity of about 9.61.
     Perplexity is a rough measure of how uncertain the model is
     about the next character. Lower is better.
   </p>
   <p>
-    Once trained, the Python script exported the learned weights as a JSON
-    file. This webpage loads that file and runs the same transformer calculation
-    in JavaScript. No server call is made when you press generate; the sampling
-    happens locally in your browser.
+    Once trained, the Python script exports the learned weights as a JSON
+    file. This webpage loads that model file, and runs the same transformer calculation
+    in JavaScript. No server call is made when you press generate- the sampling
+    happens locally in-browser.
   </p>
 </section>
 

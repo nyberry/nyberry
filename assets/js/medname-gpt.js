@@ -10,6 +10,11 @@
 
   let model = null;
 
+  const formatBytes = (bytes) => {
+    if (bytes < 1024) return `${bytes} bytes`;
+    return `${(bytes / 1024).toFixed(1)} KB`;
+  };
+
   const dot = (a, b) => a.reduce((sum, value, i) => sum + value * b[i], 0);
 
   const linear = (x, w) => w.map((row) => dot(row, x));
@@ -123,11 +128,13 @@
   fetch(MODEL_URL, { cache: "no-store" })
     .then((response) => {
       if (!response.ok) throw new Error("missing model metadata");
-      return response.json();
+      return response.text();
     })
-    .then((payload) => {
+    .then((text) => {
+      const payload = JSON.parse(text);
       model = payload;
-      status.textContent = `${payload.num_params.toLocaleString()} params, ${payload.num_steps.toLocaleString()} training steps, loss ${payload.train_loss.toFixed(4)}`;
+      const perplexity = Math.exp(payload.train_loss);
+      status.textContent = `${payload.num_params.toLocaleString()} params, ${formatBytes(text.length)} weights, ${payload.num_steps.toLocaleString()} steps, loss ${payload.train_loss.toFixed(4)}, perplexity ${perplexity.toFixed(2)}`;
       status.dataset.tone = "ready";
       button.disabled = false;
       renderNames();

@@ -6,11 +6,12 @@ from pathlib import Path
 import torch
 
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-CHECKPOINT_PATH = REPO_ROOT / "tritalk_gpt_v011" / "runs" / "v011-large" / "checkpoint.pt"
-TOKENIZER_PATH = REPO_ROOT / "tritalk_gpt_v011" / "data" / "corpus_v011" / "tokenizer.json"
-META_PATH = REPO_ROOT / "tritalk_gpt_v011" / "runs" / "v011-large" / "meta.json"
-OUTPUT_DIR = REPO_ROOT / "assets" / "data"
+SITE_ROOT = Path(__file__).resolve().parent.parent
+PYTHON_ROOT = SITE_ROOT.parent
+CHECKPOINT_PATH = PYTHON_ROOT / "tritalk_gpt_v011" / "runs" / "v011-large" / "checkpoint.pt"
+TOKENIZER_PATH = PYTHON_ROOT / "tritalk_gpt_v011" / "data" / "corpus_v011" / "tokenizer.json"
+META_PATH = PYTHON_ROOT / "tritalk_gpt_v011" / "runs" / "v011-large" / "meta.json"
+OUTPUT_DIR = SITE_ROOT / "assets" / "data"
 OUTPUT_MANIFEST_PATH = OUTPUT_DIR / "tritalk-gpt-browser-model.json"
 OUTPUT_WEIGHTS_PATH = OUTPUT_DIR / "tritalk-gpt-browser-model.bin"
 

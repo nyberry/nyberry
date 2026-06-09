@@ -54,7 +54,7 @@ date: 2026-06-08
 </section>
 
 <section class="medname-explainer">
-  <h2>What It Is</h2>
+  <h2>About</h2>
   <p>
     MicroMedGPT is a (very) small language model trained
     to invent new medication-like names, one character at a time.
@@ -76,21 +76,23 @@ date: 2026-06-08
 
   <p>
     The training corpus is a list of drug names compiled from the US FDA National Drug Code Directory.
-    It pulls both proprietary names and non-proprietary names, lowercased, with punctuation and numbers removed. It keeps alphabetic characters only, and strips common formulation
+    It pulls both proprietary names and non-proprietary names, lowercased, with punctuation and numbers removed. It keeps alphabetic characters only, and strips confounding
     words such as <code>tablet</code>, <code>capsule</code>,
     <code>injection</code>, <code>solution</code>, <code>cream</code>, and
     <code>spray</code>.
   </p>
   <p>
-    After cleaning, the corpus contains 6,091 drug names. This is enough for the model
+    After cleaning, the corpus contains 6,091 drug names. These are compiled in a list: <code>abacavir, abatacept, abemaciclib, abilify, abiraterone</code>, and so on. This is enough for the model
     to notice some of the characteristic endings and internal shapes of medicine
     names, while still being small enough to train in about a minute on a laptop.
+    </p>
+    <p> Does it work? Well, you can see that if the seed <code>a</code> is used, the GPT will generate new drug names like <code>adlarilo, atrzamasidene, atetapine, akunotrab, acadsel...</code>
   </p>
   <p>
     The offline training run uses 1,000 steps. At the end of that run the final
     training loss is 2.262, which corresponds to a perplexity of about 9.61.
     Perplexity is a rough measure of how uncertain the model is
-    about the next character. Lower is better.
+    about the next character. Lower is better, and a single digit score is (to me) surprisingly good for such a small model. 
   </p>
   <p>
     Once trained, the Python script exports the learned weights as a JSON

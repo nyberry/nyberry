@@ -89,8 +89,7 @@ date: 2026-06-05
   </p>
   <p>
     One of my hobbies is triathlon: swimming, cycling, and running. Increasingly, though,
-    my interest in the sport includes a fourth discipline: talking about it on the public
-    triathlon forum tritalk.co.uk.
+    my interest in the sport includes a fourth discipline: talking about it on the triathlon forum tritalk.co.uk.
   </p>
   <p>
     TriTalk has been running for years and has developed a distinctive flavour and style,
@@ -106,8 +105,7 @@ date: 2026-06-05
     Every language model needs to be trained on text. This model was trained on 75,759
     forum posts, with 8,418 validation posts, from a deduplicated corpus of 84,177 public
     TriTalk posts. These were downloaded from the public forum data and organised into large
-    human-readable text files with one post per line: about 17 MB for the training data and
-    about 2 MB for the validation data.
+    human-readable text files with one post per line: about 20 MB of text.
   </p>
   <p>
     The posts were deduplicated and then split at the post level into training and validation sets,
@@ -224,7 +222,7 @@ date: 2026-06-05
     still a very lightweight toy language model rather than anything more useful.
   </p>
   <p>
-    That said, this language model has learned how to talk from firt principles, and exclusively from looking at TriTalk forum posts. So I think it is a limited success.
+    That said, this language model has learned how to talk from first principles, and exclusively from looking at TriTalk forum posts. It knows basic rules of grammar, it knows you swim in water, it knows that shoes go on your feet. So I think it is a limited success.
   </p>
   <p>
     Your welcome.

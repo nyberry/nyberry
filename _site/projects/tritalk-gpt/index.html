@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>TriTalk miniGPT</title>
+  <title>TriTalkGPT 1.1</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/assets/css/styles.css">
 </head>
@@ -52,6 +52,7 @@
       <li class="dropdown">
         <a href="#">Fun▾</a>
         <ul class="dropdown-content">
+          <li><a href="/projects/ask-tritalk">AskTriTalk</a></li>
           <li><a href="/projects/MicroMedGPT">MicroMedGPT</a></li>
           <li><a href="/projects/tritalk-gpt-live">TriTalk miniGPT Live</a></li>
           <li><a href="/projects/tritalk-gpt">TriTalk miniGPT</a></li>
@@ -71,13 +72,13 @@
     <p class="tritalk-kicker">Browser-only language model</p>
     <h1>TriTalk miniGPT</h1>
     <p class="tritalk-lede">
-      This is a small language model trained on public TriTalk forum posts. It runs
-      entirely in your browser: the page downloads the model weights once, then
-      generates each completion on your device with no API calls.
+      This is a small language model trained exclusively on material posted on the forum tritalk.co.uk. It runs
+      in your browser. The page downloads the model weights once, then
+      generates each completion on your device, with no API calls.
     </p>
     <p class="tritalk-note">
-      It is designed to mimic some of the tone, topics, and
-      phrasing of the forum.
+      Can it make any sort of sense? Can it mimic some of the tone and
+      phrasing of the forum. Can it draw on forum content?
     </p>
   </div>
   <div class="tritalk-hero__panel">
@@ -132,43 +133,147 @@
     <pre id="tritalk-output" class="tritalk-output"></pre>
   </div>
 </section>
-<section class="tritalk-explainer">
-  <h2>What It Is</h2>
+<p>&lt;<section class="tritalk-explainer"></p>
+  <h2>About</h2>
   <p>
-    This model was trained on public TriTalk posts and
-    uses a subword tokenizer, which helps it handle rarer terms, race names, and
-    forum-style phrasing more gracefully than a simple word list.
+    This is the second in a series of mini GPT experiments, inspired by Andrej Karpathy's
+    writing on extremely small language models.
   </p>
   <p>
-    The browser bundle contains a 6-layer transformer with a 4,061-token
-    subword vocabulary. The training run reached a validation loss of about 4.535,
-    which corresponds to a perplexity of roughly 93.
+    One of my hobbies is triathlon: swimming, cycling, and running. Increasingly, though,
+    my interest in the sport includes a fourth discipline: talking about it on the public
+    triathlon forum tritalk.co.uk.
   </p>
   <p>
-    The best results usually come from prompt starters that sound like the start
-    of a forum post rather than a bare topic label.
-  </p>
-  <h2>How it works</h2>
-  <p>
-    The training happened off-line in Python. The resulting checkpoint was then
-    exported into static weight files that JavaScript can load from this site.
+    TriTalk has been running for years and has developed a distinctive flavour and style,
+    while also capturing a great deal of information, opinion, and nonsense about the triathlon world.
   </p>
   <p>
-    When you press generate, the browser tokenizes your prompt into subword pieces,
-    runs the transformer layer by layer, samples the next token, appends it, and repeats.
+    I wanted to see whether a language model could be trained exclusively on posts from
+    tritalk.co.uk, and nothing else.
+  </p>
+  <h2>The training corpus</h2>
+  <p>
+    Every language model needs to be trained on text. This model was trained on 75,759
+    forum posts, with 8,418 validation posts, from a deduplicated corpus of 84,177 public
+    TriTalk posts. These were downloaded from the public forum data and organised into large
+    human-readable text files with one post per line: about 17 MB for the training data and
+    about 2 MB for the validation data.
   </p>
   <p>
-    No API calls are made during inference. After the model loads, the generation
-    loop is local.
+    The posts were deduplicated and then split at the post level into training and validation sets,
+    so the model was evaluated on held-out posts rather than on fragments it had already seen.
   </p>
-  <h2>Why is it not very good?</h2>
+  <h2>The tokenizer</h2>
   <p>
-    It is a small experimental
-    model with a short context window and very limited reasoning ability. Your welcome.
+    Each post is turned into a sequence of discrete tokens, which can then be mapped to numbers,
+    embedded as vectors, and processed by the transformer.
   </p>
   <p>
-    You should still expect repetition, talk abot crocs and Fossies, odd phrasing, and the
-    occasional derailment.
+    A subword tokenizer is a useful middle ground between character-level tokenization and
+    whole-word tokenization. It creates a medium-sized vocabulary that can represent common words
+    compactly while still allowing unfamiliar terms to be built from smaller known pieces.
+  </p>
+  <p>
+    In this project, tokenization was implemented with a custom BPE (byte pair encoding)
+    tokenizer. The tokenizer lowercased the forum text, split it into word-like units, and
+    represented each word as a sequence of characters prefixed with a special space marker.
+    It then repeatedly merged the most frequent adjacent symbol pairs, learning a vocabulary
+    of common subword pieces such as prefixes, endings, and frequent whole tokens.
+  </p>
+  <p>
+    This process produced a 4,061-token subword vocabulary. Once the vocabulary and merge list
+    had been learned, each training post was encoded into a sequence of subword token IDs, with
+    special beginning-of-sequence and end-of-sequence markers added around each post. These token
+    sequences were saved as PyTorch tensors, so the training code could reload ready-made numeric
+    data directly without reprocessing the raw text each time.
+  </p>
+  <p>
+    The most common non-special subword tokens include <code>▁.</code>, <code>▁the</code>,
+    <code>▁,</code>, <code>▁a</code>, and <code>▁to</code>. Mid-frequency tokens include
+    <code>cing</code>, <code>▁blue</code>, <code>arr</code>, <code>▁roth</code>, and
+    <code>▁adjust</code>.
+  </p>
+  <h2>The transformer</h2>
+  <p>
+    The core of the model is a decoder-only transformer: a neural network designed to predict
+    the next token in a sequence from the tokens that came before it.
+  </p>
+  <p>
+    Each token ID is first converted into a learned embedding vector. A separate positional
+    embedding is then added so the model can distinguish between tokens appearing early or late
+    in the sequence. These combined vectors are passed through a stack of transformer blocks,
+    where the model repeatedly updates its internal representation of the text.
+  </p>
+  <p>
+    Inside each block, self-attention allows each token to look back at earlier tokens in the
+    sequence and decide which ones are most relevant. This helps the model capture relationships
+    such as sentence structure, related topics, and forum-style phrasing. After attention, a
+    feed-forward neural network further transforms the representation before passing it to the next block.
+  </p>
+  <p>
+    In this browser version, the transformer has 6 layers, 6 attention heads, an embedding width
+    of 192, and a context window of 128 tokens. At inference time, it generates text one token at
+    a time, feeding each new token back into the model to continue the sequence.
+  </p>
+  <h2>Training and results</h2>
+  <p>
+    The model was trained to predict the next token in each sequence. During training, it repeatedly
+    saw short excerpts from the corpus and adjusted its weights to become better at continuing them.
+  </p>
+  <p>
+    The final training run reached a validation loss of about 4.535, which corresponds to a
+    perplexity of roughly 93. Perplexity is a rough measure of how uncertain the model is when
+    predicting the next token: lower values indicate more confident, and usually more coherent,
+    predictions.
+  </p>
+  <p>
+    In practice, the model works best when given prompt starters that sound like the beginning of a
+    real forum post. Short, natural openings give it useful cues to continue from.
+  </p>
+  <h2>In the browser</h2>
+  <p>
+    The model was trained off-line in Python. The resulting checkpoint was then exported into static
+    weight files that JavaScript can load directly from this site.
+  </p>
+  <p>
+    When you press generate, the browser tokenizes your prompt into subword pieces, runs the
+    transformer layer by layer, samples the next token, appends it to the sequence, and then repeats
+    the process.
+  </p>
+  <p>
+    No API calls are made during inference. Once the model has loaded, the entire generation loop
+    runs locally in your browser.
+  </p>
+  <h2>Limitations</h2>
+  <p>
+    This is a small experimental model with a short context window and very limited reasoning ability.
+    It can imitate some of the tone, topics, and phrasing of the training corpus, but it does not
+    truly understand triathlon, physiology, or the wider world in the way a person does.
+  </p>
+  <p>
+    Its main strength is style imitation rather than factual reliability. It is better at producing
+    something that sounds like the start of a forum reply than at giving accurate or useful advice.
+    It may mash together half-remembered patterns from the training data, or drift away from the
+    original prompt.
+  </p>
+  <p>
+    Because the model is small, it is also prone to repetition, abrupt topic shifts, odd phrasing,
+    and occasionally getting stuck in familiar loops. Some subjects and recurring references from
+    the forum appear disproportionately often, simply because they were easy statistical patterns
+    for the model to learn.
+  </p>
+  <p>
+    The short context window also limits how much information it can keep in mind at once. It does
+    not maintain a deep understanding of longer prompts, and it can lose track of details as
+    generation continues. So while it can be amusing and sometimes surprisingly plausible, it is
+    still a very lightweight toy language model rather than anything more useful.
+  </p>
+  <p>
+    That said, this language model has learned how to talk from firt principles, and exclusively from looking at TriTalk forum posts. So I think it is a limited success.
+  </p>
+  <p>
+    Your welcome.
   </p>
 </section>
 <style>

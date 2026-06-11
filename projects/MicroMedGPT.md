@@ -3,7 +3,7 @@ layout: layout.html
 title: MicroMedGPT
 description: A tiny GPT model for generating new medication names.
 image: /assets/images/medicine.png
-date: 2026-06-08
+date: 2026-06-04
 ---
 
 <section class="medname-hero">

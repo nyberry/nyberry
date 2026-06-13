@@ -1,6 +1,6 @@
 ---
 layout: layout.html
-title: Clini
+title: clini.co.uk
 description: A tool for extracting structured data from clinical documents and generating personalised medical reports.
 image: /assets/images/phonedemo.png
 date: 2025-06-01

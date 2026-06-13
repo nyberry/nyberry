@@ -43,5 +43,5 @@ Hope you find something useful, interesting or fun.
   <p>
     This site is intended as a light reference tool and should not be relied upon as a sole source of information for clinical decision-making. There may be errors. Clinical users must verify all information against authoritative sources such as national guidelines or clinical protocols, and are responsibile for safe use.
   </p>
-  <p style="margin-top: 1rem;">&copy; 2026 NYB Medical Limited</p>
+  <p style="margin-top: 1rem;"><a href="https://clini.co.uk/nyb-medical/">&copy; 2026 NYB Medical Limited</a></p>
 </div>

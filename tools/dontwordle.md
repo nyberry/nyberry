@@ -1,12 +1,12 @@
 ---
 layout: layout.html
-title: Don't Wordle Optimiser
+title: "Don't Wordle: an optimiser"
 description: Enter a known Don't Wordle answer and search for a high-scoring six-guess sequence.
 image: /assets/images/dontwordle-optimiser.png
 date: 2026-09-06
 ---
 
-<h2>Don't Wordle Optimiser</h2>
+<h2>Don't Wordle: an optimiser</h2>
 
 <form id="dontwordle-form" class="dontwordle-form">
   <label for="dontwordle-answer">Enter known answer</label>
@@ -32,8 +32,6 @@ date: 2026-09-06
 <hr>
 
 <section class="dontwordle-explainer">
-  <h3>How the optimiser works</h3>
-
   <p>
     The optimiser runs a client-side bounded beam search over legal Don't Wordle
     trajectories, parameterised by a known target word. The search space is the
@@ -41,7 +39,6 @@ date: 2026-09-06
     with the additional constraint that the target word itself is never guessed.
   </p>
 
-  <h4>1. Candidate representation</h4>
   <p>
     Each candidate guess is precompiled against the target into a compact
     constraint object. This contains the Wordle feedback vector over
@@ -57,7 +54,6 @@ date: 2026-09-06
     and not two or more.
   </p>
 
-  <h4>2. Legal-transition test</h4>
   <p>
     A sequence is legal only if every later guess satisfies every constraint
     implied by every earlier row. Greens fix absolute positions. Yellows require
@@ -67,7 +63,6 @@ date: 2026-09-06
     in that row.
   </p>
 
-  <h4>3. Reverse search</h4>
   <p>
     The optimiser searches backwards. A partial state is a legal suffix of the
     final six guesses. To prepend a candidate guess, the algorithm checks whether
@@ -81,7 +76,6 @@ date: 2026-09-06
     are expanded into full six-row trajectories.
   </p>
 
-  <h4>4. Beam approximation</h4>
   <p>
     Exhaustive enumeration of the complete legal tree is usually too expensive
     for an interactive browser page. Instead, the optimiser uses beam search.
@@ -102,7 +96,6 @@ date: 2026-09-06
     rather than a proof of global optimality.
   </p>
 
-  <h4>5. Terminal scoring</h4>
   <p>
     Complete six-guess paths are scored exactly. The score is:
   </p>
@@ -223,15 +216,6 @@ date: 2026-09-06
     margin: 1.5rem auto 0;
     text-align: left;
     line-height: 1.55;
-  }
-
-  .dontwordle-explainer h3,
-  .dontwordle-explainer h4 {
-    color: #14313f;
-  }
-
-  .dontwordle-explainer h4 {
-    margin-bottom: 0.25rem;
   }
 
   .dontwordle-explainer ul {

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Don't Wordle Optimiser</title>
+  <title>Don't Wordle: an optimiser</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/assets/css/styles.css">
 </head>
@@ -57,7 +57,7 @@
           <li><a href="/projects/tritalk-gpt-live">TriTalk miniGPT Live</a></li>
           <li><a href="/projects/tritalk-gpt">TriTalk miniGPT</a></li>
           <li><a href="/blog/">Blog</a></li>
-          <li><a href="/tools/dontwordle">Don't Wordle Optimiser</a></li>
+          <li><a href="/tools/dontwordle">Don't Wordle: an optimiser</a></li>
           <li><a href="/games/sumfing">Sumfing</a></li>
           <li><a href="/tools/pets">Degu or Cat?</a></li>
           <li><a href="/tools/shapes">Shape Classifier</a></li>
@@ -68,7 +68,7 @@
 
   <main class="main-container">
       
-      <h2>Don't Wordle Optimiser</h2>
+      <h2>Don't Wordle: an optimiser</h2>
 <form id="dontwordle-form" class="dontwordle-form">
   <label for="dontwordle-answer">Enter known answer</label>
   <input id="dontwordle-answer" type="text" inputmode="latin" autocomplete="off" maxlength="5" pattern="[A-Za-z]{5}" placeholder="fable" required>
@@ -87,14 +87,12 @@
 </section>
 <hr>
 <section class="dontwordle-explainer">
-  <h3>How the optimiser works</h3>
   <p>
     The optimiser runs a client-side bounded beam search over legal Don't Wordle
     trajectories, parameterised by a known target word. The search space is the
     set of six-word sequences drawn from the 12,972 valid Wordle guess words,
     with the additional constraint that the target word itself is never guessed.
   </p>
-  <h4>1. Candidate representation</h4>
   <p>
     Each candidate guess is precompiled against the target into a compact
     constraint object. This contains the Wordle feedback vector over
@@ -109,7 +107,6 @@
     bound of one A. Later guesses may therefore contain exactly one A, not zero
     and not two or more.
   </p>
-  <h4>2. Legal-transition test</h4>
   <p>
     A sequence is legal only if every later guess satisfies every constraint
     implied by every earlier row. Greens fix absolute positions. Yellows require
@@ -118,7 +115,6 @@
     of a duplicated letter caps the count at the number of non-grey copies seen
     in that row.
   </p>
-  <h4>3. Reverse search</h4>
   <p>
     The optimiser searches backwards. A partial state is a legal suffix of the
     final six guesses. To prepend a candidate guess, the algorithm checks whether
@@ -131,7 +127,6 @@
     backwards allows the optimiser to reject incompatible prefixes before they
     are expanded into full six-row trajectories.
   </p>
-  <h4>4. Beam approximation</h4>
   <p>
     Exhaustive enumeration of the complete legal tree is usually too expensive
     for an interactive browser page. Instead, the optimiser uses beam search.
@@ -151,7 +146,6 @@
     the browser version reports the best sequence found within the selected beam
     rather than a proof of global optimality.
   </p>
-  <h4>5. Terminal scoring</h4>
   <p>
     Complete six-guess paths are scored exactly. The score is:
   </p>
@@ -271,15 +265,6 @@
     margin: 1.5rem auto 0;
     text-align: left;
     line-height: 1.55;
-  }
-
-  .dontwordle-explainer h3,
-  .dontwordle-explainer h4 {
-    color: #14313f;
-  }
-
-  .dontwordle-explainer h4 {
-    margin-bottom: 0.25rem;
   }
 
   .dontwordle-explainer ul {

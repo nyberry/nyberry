@@ -90,6 +90,11 @@ date: 2026-09-06
     box.
   </p>
   <p>
+    The heuristic combines both terms in the final objective: it strongly prefers
+    states that conserve alphabet letters, while also favouring states that leave
+    a larger current set of possible remaining words.
+  </p>
+  <p>
     Search effort is therefore a beam width, not a depth parameter. Increasing
     it explores more of the search tree and may improve the returned sequence,
     but it increases runtime. Because branches outside the beam are discarded,

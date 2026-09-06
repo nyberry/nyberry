@@ -134,32 +134,36 @@ function candidateCanPrepend(candidate, state, answer) {
   return true;
 }
 
-function stateRank(state) {
-  const unusedLetters = 26 - state.usedMask.toString(2).replaceAll("0", "").length;
-  return unusedLetters * 100000 + state.path.length * 1000;
+function popCount(mask) {
+  let count = 0;
+  let value = mask >>> 0;
+  while (value) {
+    value &= value - 1;
+    count += 1;
+  }
+  return count;
 }
 
-function scoreState(state, words) {
-  const rows = state.path.map((entry) => entry.row);
-  const remaining = possibleWords(words, rows).map((entry) => entry.word);
+function stateRank(state) {
+  const unusedLetters = 26 - popCount(state.usedMask);
+  const partialScore = unusedLetters * state.remaining.length;
+  return unusedLetters * 1000000 + state.path.length * 1000 + partialScore;
+}
+
+function scoreState(state) {
   const unusedMask = ALL_MASK & ~state.usedMask;
   const unusedLetters = maskText(unusedMask);
   return {
     path: state.path,
-    feedback: rows.map((row) => row.feedback),
+    feedback: state.path.map((entry) => entry.row.feedback),
     unusedLetters,
-    remaining,
-    score: unusedLetters.length * remaining.length,
+    remaining: state.remaining.map((entry) => entry.word),
+    score: unusedLetters.length * state.remaining.length,
   };
 }
 
-function optimize(answer, wordEntries, beam) {
-  const candidates = wordEntries.map((entry) => ({
-    ...entry,
-    row: compileFeedback(entry.word, wordleFeedback(entry.word, answer)),
-  }));
-
-  let frontier = [{ path: [], usedMask: 0 }];
+function optimizeAtBeam(answer, wordEntries, candidates, beam) {
+  let frontier = [{ path: [], usedMask: 0, remaining: wordEntries }];
 
   for (let turn = 0; turn < 6; turn += 1) {
     const next = [];
@@ -167,9 +171,13 @@ function optimize(answer, wordEntries, beam) {
     for (const state of frontier) {
       for (const candidate of candidates) {
         if (!candidateCanPrepend(candidate, state, answer)) continue;
+        const remaining = state.remaining.filter((entry) =>
+          obeysCompiled(entry.word, entry.counts, entry.mask, candidate.row)
+        );
         next.push({
           path: [candidate, ...state.path],
           usedMask: state.usedMask | candidate.mask,
+          remaining,
         });
       }
     }
@@ -183,10 +191,18 @@ function optimize(answer, wordEntries, beam) {
 
   let best = null;
   for (const state of frontier) {
-    const scored = scoreState(state, wordEntries);
+    const scored = scoreState(state);
     if (!best || scored.score > best.score) best = scored;
   }
   return best;
+}
+
+function optimize(answer, wordEntries, beam) {
+  const candidates = wordEntries.map((entry) => ({
+    ...entry,
+    row: compileFeedback(entry.word, wordleFeedback(entry.word, answer)),
+  }));
+  return optimizeAtBeam(answer, wordEntries, candidates, beam);
 }
 
 function tileClass(mark) {

@@ -89,91 +89,77 @@
 <section class="dontwordle-explainer">
   <h3>How the optimiser works</h3>
   <p>
-    The aim of Don't Wordle is not to guess the answer. Instead, this tool tries
-    to find six legal guesses that leave a high final score.
+    The optimiser runs a client-side bounded beam search over legal Don't Wordle
+    trajectories, parameterised by a known target word. The search space is the
+    set of six-word sequences drawn from the 12,972 valid Wordle guess words,
+    with the additional constraint that the target word itself is never guessed.
   </p>
-  <h4>1. It starts with the answer</h4>
+  <h4>1. Candidate representation</h4>
   <p>
-    You type in the known answer, for example FABLE. The optimiser
-    then tests possible guesses against that answer, just as the real game would.
-    It uses the 12,972 valid Wordle guess words.
-  </p>
-  <h4>2. It works out the coloured feedback</h4>
-  <p>
-    For each guess, the optimiser calculates the Wordle-style tiles:
-  </p>
-  <ul>
-    <li>Green: right letter, right position.</li>
-    <li>Yellow: right letter, wrong position.</li>
-    <li>Grey: this copy of the letter is not in the answer.</li>
-  </ul>
-  <p>
-    Duplicate letters matter. If the answer is FABLE and the guess is AYAYA,
-    the feedback is yellow-grey-grey-grey-grey. That means there is one A in the
-    answer, but not three. Future guesses are therefore only allowed to use one
-    A.
-  </p>
-  <h4>3. It keeps only legal future guesses</h4>
-  <p>
-    Don't Wordle uses hard-mode-style rules. After each row, future guesses must
-    obey the information already revealed. For example, if a letter is green, it
-    must stay in that position. If a letter is yellow, it must be used again, but
-    not in the same position. If a grey tile proves that a letter is absent, that
-    letter cannot be used again.
-  </p>
-  <h4>4. It searches backwards</h4>
-  <p>
-    A simple program could try every possible sequence from row 1 to row 6, but
-    there are far too many combinations. So this optimiser builds possible endings
-    first and works backwards. In other words, it asks: "Could this word have
-    come before the guesses I already have?"
+    Each candidate guess is precompiled against the target into a compact
+    constraint object. This contains the Wordle feedback vector over
+    {green, yellow, grey}, a bitmask of the unique letters used, fixed-position
+    green constraints, per-position yellow exclusions, per-letter lower bounds
+    from green and yellow multiplicity, and per-letter upper bounds induced by
+    grey duplicate tiles.
   </p>
   <p>
-    This helps because an earlier guess creates rules that all later guesses must
-    follow. If an earlier guess would make a later word illegal, that path is
-    rejected immediately.
+    For example, if the target is FABLE and the guess is AYAYA, the feedback is
+    yellow-grey-grey-grey-grey. This implies a lower bound of one A and an upper
+    bound of one A. Later guesses may therefore contain exactly one A, not zero
+    and not two or more.
   </p>
-  <h4>5. It uses beam search</h4>
+  <h4>2. Legal-transition test</h4>
   <p>
-    The box labelled Search effort controls the size of the beam. A beam is the
-    shortlist of partly-built sequences that the optimiser keeps at each stage.
-    Imagine trying to find a route through a maze, but only keeping your best 20
-    possible routes after each junction instead of keeping every single route.
+    A sequence is legal only if every later guess satisfies every constraint
+    implied by every earlier row. Greens fix absolute positions. Yellows require
+    the letter to recur while excluding the original position. Greys impose
+    upper bounds: a fully grey letter has maximum count zero, while a grey copy
+    of a duplicated letter caps the count at the number of non-grey copies seen
+    in that row.
+  </p>
+  <h4>3. Reverse search</h4>
+  <p>
+    The optimiser searches backwards. A partial state is a legal suffix of the
+    final six guesses. To prepend a candidate guess, the algorithm checks whether
+    all words already in the suffix satisfy the constraints created by that
+    candidate's feedback. If not, the candidate cannot have appeared earlier and
+    the branch is discarded.
   </p>
   <p>
-    If Search effort is set to 20, the optimiser keeps 20 promising routes after
-    each step. If it is set to 100, it keeps 100. A larger beam means the optimiser
-    checks more possibilities and may find a better sequence, but it will take
-    longer. A smaller beam is faster, but it may throw away a route that would
-    have become better later.
+    This is useful because an early guess constrains all later guesses. Working
+    backwards allows the optimiser to reject incompatible prefixes before they
+    are expanded into full six-row trajectories.
+  </p>
+  <h4>4. Beam approximation</h4>
+  <p>
+    Exhaustive enumeration of the complete legal tree is usually too expensive
+    for an interactive browser page. Instead, the optimiser uses beam search.
+    After each expansion step it ranks partial suffixes with a heuristic and
+    retains only the best N states, where N is the value in the Search effort
+    box.
   </p>
   <p>
-    This is not the same as checking every legal route. It is a controlled
-    shortcut so the tool can run in an ordinary web browser.
+    Search effort is therefore a beam width, not a depth parameter. Increasing
+    it explores more of the search tree and may improve the returned sequence,
+    but it increases runtime. Because branches outside the beam are discarded,
+    the browser version reports the best sequence found within the selected beam
+    rather than a proof of global optimality.
   </p>
-  <h4>6. It scores the final row</h4>
+  <h4>5. Terminal scoring</h4>
   <p>
-    After six guesses, the score is:
+    Complete six-guess paths are scored exactly. The score is:
   </p>
   <p class="dontwordle-formula">
-    unused letters x possible words remaining
+    |alphabet \ used_letters(path)| x |{w in W : w satisfies all six feedback rows}|
   </p>
   <p>
-    Unused letters means letters of the alphabet that did not appear in any of
-    the six guesses. Possible words remaining means words from the Wordle list
-    that still match all the green, yellow, grey, and duplicate-letter clues
-    after row 6.
-  </p>
-  <p>
-    For example, if there are 13 unused letters and 3 possible words remaining,
-    the final score is 13 x 3 = 39.
-  </p>
-  <h4>7. Why it says "best found"</h4>
-  <p>
-    This browser version does not prove that it has found the perfect answer. It
-    reports the best sequence it found within the chosen search effort. To prove a
-    true optimum, the program would need to check every legal route, which can be
-    much slower.
+    Here W is the 12,972-word valid-guess set. The first factor rewards
+    conserving alphabet letters across the six guesses. The second factor rewards
+    preserving ambiguity: it counts how many words remain consistent with the
+    accumulated constraint system after row 6. Computationally, the task is a
+    constrained combinatorial optimisation problem over W^6, approximated here
+    by reverse beam search with exact evaluation of retained terminal states.
   </p>
 </section>
 <style>
@@ -296,14 +282,16 @@
   }
 
   .dontwordle-formula {
-    max-width: 360px;
+    max-width: 620px;
     margin: 0.75rem auto;
     padding: 0.75rem;
     border: 1px solid #cbd5d9;
     border-radius: 6px;
     background: #f7fafb;
     text-align: center;
-    font-weight: 800;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.95rem;
+    overflow-wrap: anywhere;
   }
 
   @media (max-width: 520px) {

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Don't Wordle Solver</title>
+  <title>Don't Wordle Optimiser</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/assets/css/styles.css">
 </head>
@@ -57,7 +57,7 @@
           <li><a href="/projects/tritalk-gpt-live">TriTalk miniGPT Live</a></li>
           <li><a href="/projects/tritalk-gpt">TriTalk miniGPT</a></li>
           <li><a href="/blog/">Blog</a></li>
-          <li><a href="/tools/dontwordle">Don't Wordle Solver</a></li>
+          <li><a href="/tools/dontwordle">Don't Wordle Optimiser</a></li>
           <li><a href="/games/sumfing">Sumfing</a></li>
           <li><a href="/tools/pets">Degu or Cat?</a></li>
           <li><a href="/tools/shapes">Shape Classifier</a></li>
@@ -68,7 +68,7 @@
 
   <main class="main-container">
       
-      <h2>Don't Wordle Solver</h2>
+      <h2>Don't Wordle Optimiser</h2>
 <form id="dontwordle-form" class="dontwordle-form">
   <label for="dontwordle-answer">Enter known answer</label>
   <input id="dontwordle-answer" type="text" inputmode="latin" autocomplete="off" maxlength="5" pattern="[A-Za-z]{5}" placeholder="fable" required>
@@ -87,20 +87,20 @@
 </section>
 <hr>
 <section class="dontwordle-explainer">
-  <h3>How the solver works</h3>
+  <h3>How the optimiser works</h3>
   <p>
     The aim of Don't Wordle is not to guess the answer. Instead, this tool tries
     to find six legal guesses that leave a high final score.
   </p>
   <h4>1. It starts with the answer</h4>
   <p>
-    You type in the known answer, for example FABLE. The solver
+    You type in the known answer, for example FABLE. The optimiser
     then tests possible guesses against that answer, just as the real game would.
     It uses the 12,972 valid Wordle guess words.
   </p>
   <h4>2. It works out the coloured feedback</h4>
   <p>
-    For each guess, the solver calculates the Wordle-style tiles:
+    For each guess, the optimiser calculates the Wordle-style tiles:
   </p>
   <ul>
     <li>Green: right letter, right position.</li>
@@ -124,7 +124,7 @@
   <h4>4. It searches backwards</h4>
   <p>
     A simple program could try every possible sequence from row 1 to row 6, but
-    there are far too many combinations. So this solver builds possible endings
+    there are far too many combinations. So this optimiser builds possible endings
     first and works backwards. In other words, it asks: "Could this word have
     come before the guesses I already have?"
   </p>
@@ -136,13 +136,13 @@
   <h4>5. It uses beam search</h4>
   <p>
     The box labelled Search effort controls the size of the beam. A beam is the
-    shortlist of partly-built sequences that the solver keeps at each stage.
+    shortlist of partly-built sequences that the optimiser keeps at each stage.
     Imagine trying to find a route through a maze, but only keeping your best 20
     possible routes after each junction instead of keeping every single route.
   </p>
   <p>
-    If Search effort is set to 20, the solver keeps 20 promising routes after
-    each step. If it is set to 100, it keeps 100. A larger beam means the solver
+    If Search effort is set to 20, the optimiser keeps 20 promising routes after
+    each step. If it is set to 100, it keeps 100. A larger beam means the optimiser
     checks more possibilities and may find a better sequence, but it will take
     longer. A smaller beam is faster, but it may throw away a route that would
     have become better later.

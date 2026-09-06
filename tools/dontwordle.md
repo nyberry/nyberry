@@ -1,12 +1,12 @@
 ---
 layout: layout.html
-title: Don't Wordle Solver
+title: Don't Wordle Optimiser
 description: Enter a known Don't Wordle answer and search for a high-scoring six-guess sequence.
-image: /assets/images/toolbox.png
+image: /assets/images/dontwordle-optimiser.png
 date: 2026-09-06
 ---
 
-<h2>Don't Wordle Solver</h2>
+<h2>Don't Wordle Optimiser</h2>
 
 <form id="dontwordle-form" class="dontwordle-form">
   <label for="dontwordle-answer">Enter known answer</label>
@@ -32,7 +32,7 @@ date: 2026-09-06
 <hr>
 
 <section class="dontwordle-explainer">
-  <h3>How the solver works</h3>
+  <h3>How the optimiser works</h3>
 
   <p>
     The aim of Don't Wordle is not to guess the answer. Instead, this tool tries
@@ -41,14 +41,14 @@ date: 2026-09-06
 
   <h4>1. It starts with the answer</h4>
   <p>
-    You type in the known answer, for example FABLE. The solver
+    You type in the known answer, for example FABLE. The optimiser
     then tests possible guesses against that answer, just as the real game would.
     It uses the 12,972 valid Wordle guess words.
   </p>
 
   <h4>2. It works out the coloured feedback</h4>
   <p>
-    For each guess, the solver calculates the Wordle-style tiles:
+    For each guess, the optimiser calculates the Wordle-style tiles:
   </p>
   <ul>
     <li>Green: right letter, right position.</li>
@@ -74,7 +74,7 @@ date: 2026-09-06
   <h4>4. It searches backwards</h4>
   <p>
     A simple program could try every possible sequence from row 1 to row 6, but
-    there are far too many combinations. So this solver builds possible endings
+    there are far too many combinations. So this optimiser builds possible endings
     first and works backwards. In other words, it asks: "Could this word have
     come before the guesses I already have?"
   </p>
@@ -87,13 +87,13 @@ date: 2026-09-06
   <h4>5. It uses beam search</h4>
   <p>
     The box labelled Search effort controls the size of the beam. A beam is the
-    shortlist of partly-built sequences that the solver keeps at each stage.
+    shortlist of partly-built sequences that the optimiser keeps at each stage.
     Imagine trying to find a route through a maze, but only keeping your best 20
     possible routes after each junction instead of keeping every single route.
   </p>
   <p>
-    If Search effort is set to 20, the solver keeps 20 promising routes after
-    each step. If it is set to 100, it keeps 100. A larger beam means the solver
+    If Search effort is set to 20, the optimiser keeps 20 promising routes after
+    each step. If it is set to 100, it keeps 100. A larger beam means the optimiser
     checks more possibilities and may find a better sequence, but it will take
     longer. A smaller beam is faster, but it may throw away a route that would
     have become better later.

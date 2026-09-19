@@ -1,7 +1,7 @@
 ---
 layout: layout.html
-title: Classifier part 2
-description: Draw a cat or a degu and let a neural net classify it.
+title: Browser Image Classifier
+description: A small browser-based neural-network demo for classifying simple animal drawings.
 image: /assets/images/catordegu.jpg
 date: 2026-04-06
 ---

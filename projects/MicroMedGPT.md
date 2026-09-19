@@ -1,8 +1,8 @@
 ---
 layout: layout.html
 title: MicroMedGPT
-description: A tiny GPT model for generating new medication names.
-image: /assets/images/medicine.png
+description: A tiny GPT model generating medication names.
+image: /assets/images/micromedgpt-photo.png
 date: 2026-06-04
 ---
 
@@ -11,7 +11,7 @@ date: 2026-06-04
     <p class="medname-kicker">Browser-only character model</p>
     <h1>MicroMedGPT</h1>
     <p class="medname-lede">
-      A tiny GPT model for generating new medication names.
+      A tiny GPT model generating medication names.
     </p>
   </div>
   <div class="medname-status-panel">

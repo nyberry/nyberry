@@ -2,7 +2,7 @@
 layout: layout.html
 title: "Don't Wordle: an optimiser"
 description: Enter a known Don't Wordle answer and search for a high-scoring six-guess sequence.
-image: /assets/images/dontwordle-optimiser.png
+image: /assets/images/dontwordle-photo.png
 date: 2026-09-06
 ---
 

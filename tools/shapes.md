@@ -1,7 +1,7 @@
 ---
 layout: layout.html
-title: Classifier part 1
-description: Draw a triangle, circle, or square and let a neural net classify it.
+title: Browser Shape Classifier
+description: A compact neural-network demo that classifies hand-drawn triangles, circles, and squares in the browser.
 image: /assets/images/shapes-tool.png
 date: 2026-04-06
 ---

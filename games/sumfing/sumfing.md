@@ -1,6 +1,6 @@
 ---
-title: Sumfing
-description: A simple yet challenging number game. Can you arrange the tiles to solve the sum? Nothing to do with medicine.
+title: Sumfing Number Puzzle
+description: A compact browser puzzle about arranging numbered tiles to satisfy a target sum.
 image: /games/sumfing/assets/images/demoImage.png
 date: 2024-06-01
 order: 400

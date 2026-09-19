@@ -1,7 +1,7 @@
 ---
 layout: layout.html
-title: TriTalkGPT 1.1
-description: A small language model trained on triathlon forum posts, which runs in the browser.
+title: TTGPT 1.1
+description: A small browser-based language model trained on forum posts.
 image: /assets/images/tritalk-gpt-tile.svg
 date: 2026-06-05
 ---

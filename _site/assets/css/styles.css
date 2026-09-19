@@ -569,7 +569,7 @@ button.disabled-button {
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 0.8rem;
+  gap: 1rem;
   margin: 0 auto;
 }
 
@@ -694,6 +694,7 @@ button.disabled-button {
 
   .card-grid {
     grid-template-columns: 1fr;
+    gap: 0.8rem;
   }
 
   .card {

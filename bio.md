@@ -10,9 +10,11 @@ title: Bio
 
 I'm based in Dorset, UK.
 
-I am interested in the application of AI technologies in primary care, and am studying for a masters degree in Data Science for Healthcare at Exeter University.
+I am a GP with an interest in data science and the safe use of clinical technology.
 
-This website shares some of the things that I am finding interesting- hope you enjoy them.
+I'm currently studying for a master's degree in Data Science for Healthcare at the University of Exeter.
+
+This site brings together an eclectic mix of tools, experiments, notes, and projects I’ve been working on as I explore how machine learning, language models, simulation, and clinical software might be used in primary care.
 
 <div class="icons">
     <a href="https://www.linkedin.com/in/nick-berry-767329232/" aria-label="LinkedIn">

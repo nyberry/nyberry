@@ -11,7 +11,7 @@ templateEngineOverride: liquid
   <h1>Digital tools for health care</h1>
   <p class="hero-lede">
     I'm Nick, a GP and tech enthusiast. Here are some thoughts on machine learning,
-    language models, simulations, tools, and the safe use of technology in primary care.
+    language models, simulations, tools, and the safe use of clinical technology in primary care.
   </p>
 </section>
 

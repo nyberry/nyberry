@@ -10,8 +10,11 @@ templateEngineOverride: liquid
   <p class="eyebrow">AI . Data Science . Health </p>
 
   <p class="hero-lede">
-    Some eclectic and widely dispersed thoughts on machine learning, language models, simulations, optimisers, classifiers, and how these can sometimes be used in healthcare.
+    Eclectic explorations in clinical decision support
   </p>
+
+  <p class="eyebrow">Fairness. Inclusion. Digital safety </p>
+
 </section>
 
 <section class="home-section">

@@ -7,11 +7,10 @@ templateEngineOverride: liquid
 <img class="profile_img" src="/assets/images/headshot.jpg" alt="Centered Image">
 
 <section class="home-hero">
-  <p class="eyebrow">Data science . AI . Clinical safety</p>
-  <h1>Digital tools for health care</h1>
+  <p class="eyebrow">AI . Data Science . Health </p>
+
   <p class="hero-lede">
-    I'm Nick, a GP and tech enthusiast. Here are some thoughts on machine learning,
-    language models, simulations, tools, and the safe use of clinical technology in primary care.
+    Some eclectic and widely dispersed thoughts on machine learning, language models, simulations, optimisers, classifiers, and how these can sometimes be used in healthcare.
   </p>
 </section>
 

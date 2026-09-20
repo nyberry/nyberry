@@ -7,7 +7,8 @@ templateEngineOverride: liquid
 <img class="profile_img" src="/assets/images/headshot.jpg" alt="Centered Image">
 
 <section class="home-hero">
-  <p class="eyebrow">AI . Data Science . Health . Fairness . Inclusion . Safety </p>
+  <p class="eyebrow">AI . Data Science . Health</p>
+  <p class="eyebrow">Fairness . Inclusion . Safety</p>
 
   <p class="hero-lede">
     Eclectic explorations in clinical decision support

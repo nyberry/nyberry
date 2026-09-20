@@ -8,6 +8,7 @@ templateEngineOverride: liquid
 
 <section class="home-hero">
   <p class="eyebrow">AI . Data Science . Health </p>
+  <p class="eyebrow">Fairness . Inclusion . Safety </p>
 
   <p class="hero-lede">
     Eclectic explorations in clinical decision support

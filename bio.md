@@ -12,7 +12,7 @@ I'm a GP, Researcher, Educator and Digital Fellow with the Dorset Primary Care T
 
 I am interested in the application of data science and how this overlaps with the safe clinical use of emerging AI technologies.
 
-This site brings together a range of tools, experiments, notes, and projects exploring ways in which machine learning, language models, ambient voice technology, and population health data might be joined up and used safely and beneficially in frontline primary care.
+This site brings together a range of tools, experiments, notes, and projects exploring ways in which machine learning, language models, record-aware ambient voice technology, and population health data might be joined up and used safely and beneficially in frontline primary care.
 
 <div class="icons">
     <a href="https://www.linkedin.com/in/nick-berry-767329232/" aria-label="LinkedIn">

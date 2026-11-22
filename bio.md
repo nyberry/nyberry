@@ -8,13 +8,11 @@ title: Bio
 
 ### Hi, I'm Nick.
 
-I'm based in Dorset, UK.
+I'm a GP, Learner, Researcher, Educator and Digital Fellow with the Dorset Primary Care Training Hub.
 
-I am a GP with an interest in data science and the safe use of clinical technology.
+I am interested in the application of data science and how this overlaps with the safe clinical use of emerging AI technologies.
 
-I'm currently studying for a master's degree in Data Science for Healthcare at the University of Exeter.
-
-This site brings together an eclectic mix of tools, experiments, notes, and projects I’ve been working on as I explore how machine learning, language models, simulation, and clinical software might be used in primary care.
+This site brings together an eclectic mix of tools, experiments, notes, and projects I’ve been working on as I explore ways in which machine learning, language models, ambient voice technology, and population health data might be joined up and used safely and beneficially in frontline primary care.
 
 <div class="icons">
     <a href="https://www.linkedin.com/in/nick-berry-767329232/" aria-label="LinkedIn">
